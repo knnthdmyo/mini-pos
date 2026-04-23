@@ -24,7 +24,7 @@ export interface ChartPoint {
 export interface ChartData {
   salesByProduct: ChartPoint[];
   peakTimes: ChartPoint[]; // 10am–10pm (13 entries)
-  weeklyPerformance: ChartPoint[]; // Mon–Sun buckets
+  weeklyPerformance: ChartPoint[]; // daily buckets (Mon–Sun)
 }
 
 export interface ProductOption {
@@ -145,8 +145,9 @@ export async function getChartData(filters: {
     value: 0,
   }));
 
-  // Weekly performance: bucket by ISO week starting Monday
-  const weekMap = new Map<string, number>();
+  // Weekly performance: aggregate by day of week (Mon–Sun)
+  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayOfWeekArr = DAY_NAMES.map((label) => ({ label, value: 0 }));
 
   for (const o of orders) {
     const completedDate = new Date(o.completed_at as string);
@@ -184,13 +185,9 @@ export async function getChartData(filters: {
       // Peak times
       peakArr[hour].value += itemValue;
 
-      // Weekly performance (Monday-based week label)
-      const d = new Date(completedDate);
-      const day = d.getDay();
-      const mon = new Date(d);
-      mon.setDate(d.getDate() - ((day + 6) % 7));
-      const weekLabel = mon.toLocaleDateString("en-PH", { month: "short", day: "numeric" });
-      weekMap.set(weekLabel, (weekMap.get(weekLabel) ?? 0) + itemValue);
+      // Weekly performance (day of week: 0=Mon … 6=Sun)
+      const dow = (completedDate.getDay() + 6) % 7;
+      dayOfWeekArr[dow].value += itemValue;
     }
   }
 
@@ -202,18 +199,9 @@ export async function getChartData(filters: {
       value: Math.round(value * 100) / 100,
     }));
 
-  // Build weeklyPerformance sorted chronologically
-  // Recover the Monday Date from the label for sorting
-  const weekEntries = Array.from(weekMap.entries());
-  // Sort by re-parsing the label (same year context)
-  weekEntries.sort(([a], [b]) => {
-    const da = new Date(a + ", " + start.getFullYear());
-    const db = new Date(b + ", " + start.getFullYear());
-    return da.getTime() - db.getTime();
-  });
-  const weeklyPerformance: ChartPoint[] = weekEntries.map(([label, value]) => ({
-    label: "Wk " + label,
-    value: Math.round(value * 100) / 100,
+  const weeklyPerformance: ChartPoint[] = dayOfWeekArr.map((d) => ({
+    label: d.label,
+    value: Math.round(d.value * 100) / 100,
   }));
 
   return {
