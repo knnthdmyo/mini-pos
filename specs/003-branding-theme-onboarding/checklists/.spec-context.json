@@ -1,0 +1,10 @@
+{
+  "workflow": "speckit",
+  "specName": "checklists",
+  "branch": "checklists",
+  "selectedAt": "2026-04-23T09:08:22.878Z",
+  "currentStep": "specify",
+  "status": "draft",
+  "stepHistory": {},
+  "transitions": []
+}

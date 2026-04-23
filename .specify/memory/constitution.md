@@ -1,19 +1,21 @@
 <!--
   Sync Impact Report
-  Version change: 1.0.0 → 1.1.0
+  Version change: 1.0.0 → 1.2.0
   Modified principles: none (all MVP1 principles retained as-is)
   Added sections:
     - Core Purpose: expanded with MVP2 costing/pricing goal
     - MVP2 Principles: VI. Accuracy Over Speed (Admin Only),
       VII. Separation of Concerns, VIII. Batch-Based Thinking,
       IX. Editable System, X. Transparency
+    - MVP3 Principle: XI. Personalization Without Performance Cost
     - MVP2 Scope Boundaries (Included + Excluded)
-    - Data Integrity Rules: added material cost + costing snapshot rules
-    - UX Rules: added MVP2 onboarding + real-time totals rules
+    - MVP3 Scope Boundaries (Included + Excluded)
+    - Data Integrity Rules: added material cost + costing snapshot + store_settings rules
+    - UX Rules: added MVP2 onboarding + real-time totals + theme/branding rules
   Removed sections: none
   Templates requiring updates:
     - .specify/templates/plan-template.md: Constitution Check gates → ✅ updated
-      (added MVP2 principle checks VI–X, MVP2 scope gate)
+      (added MVP2 principle checks VI–X, MVP3 principle XI, scope gates)
     - .specify/templates/spec-template.md: Scope alignment → ✅ no structural
       changes required
     - .specify/templates/tasks-template.md: Task categories → ✅ no new
@@ -106,6 +108,18 @@ The costing interface MUST display a full breakdown: material costs, overhead,
 labor, total cost, and profit margin. No black-box formulas are permitted.
 Every computed value MUST show how it was derived.
 
+## Core Principles — MVP3 (Branding & Theme Onboarding)
+
+### XI. Personalization Without Performance Cost
+
+Store branding and theme settings MUST be loaded once at app initialization and
+cached for the session — never re-fetched per page navigation or per order.
+Theme application MUST use static CSS class swaps (Tailwind presets); runtime
+style computation is prohibited. Banner/logo assets MUST be served from
+Supabase Storage with appropriate caching headers. Onboarding MUST be a
+one-time step that does not appear during normal POS operation. No branding
+feature may add latency to the order creation, queue, or reporting flows.
+
 ## MVP1 Scope Boundaries
 
 ### Included in v1
@@ -116,6 +130,14 @@ Every computed value MUST show how it was derived.
 - Batch preparation with ingredient deduction
 - Reporting (revenue, cost, profit)
 - Low stock alerts (email)
+
+### Included in v3 (Branding & Theme Onboarding)
+
+- First-login onboarding step (store name, banner/logo upload, theme preset)
+- Store settings persistence in `store_settings` table
+- Global theme application across POS, Queue, and Reports headers
+- Live preview during onboarding (optional, preferred)
+- Store settings edit page (post-onboarding)
 
 ### Excluded from v1
 
@@ -148,6 +170,27 @@ Any feature in the Excluded list MUST NOT be designed, implemented, or
 partially built during MVP2. Scope creep violations MUST be flagged
 immediately.
 
+## MVP3 Scope Boundaries
+
+### Included in v3 (Branding & Theme Onboarding)
+
+- First-login onboarding step (store name, banner/logo upload, theme preset)
+- Store settings persistence in `store_settings` table
+- Global theme application across POS, Queue, and Reports headers
+- Live preview during onboarding (optional, preferred)
+- Store settings edit page (post-onboarding)
+
+### Excluded from v3
+
+- Advanced theming (custom color pickers, CSS editor)
+- Multiple themes per user
+- Heavy UI customization beyond preset themes
+- Font customization
+
+Any feature in the Excluded list MUST NOT be designed, implemented, or
+partially built during MVP3. Scope creep violations MUST be flagged
+immediately.
+
 ## Data Integrity Rules
 
 - Orders are the source of truth for revenue.
@@ -158,6 +201,9 @@ immediately.
 - All mutations MUST be logged — no silent state changes are permitted.
 - Every inventory deduction MUST be traceable to an order or a manual
   adjustment.
+- `store_settings` MUST have exactly one row per authenticated user. Updates
+  MUST overwrite — never insert duplicates. Banner URLs MUST reference valid
+  Supabase Storage objects; stale URLs from replaced uploads MUST be cleaned up.
 
 ## UX Rules
 
@@ -169,6 +215,11 @@ immediately.
 - Use tables for detailed data (material lists, cost breakdowns).
 - Use cards for summaries (product cost overview, profit snapshot).
 - Computed totals MUST update in real-time as inputs change.
+- Theme changes MUST apply instantly in the live preview and globally after save.
+- Onboarding MUST be skippable — the system MUST function with default settings
+  if the user dismisses or defers onboarding.
+- The store name and banner MUST appear consistently in POS, Queue, and Reports
+  headers without altering the layout or obscuring primary actions.
 
 ## Evolution Rule
 
@@ -196,4 +247,4 @@ rejected or delayed until it can.
 - The plan-template.md Constitution Check gate uses the principles defined
   here as compliance criteria.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-23
+**Version**: 1.2.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-23
