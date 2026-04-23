@@ -4,12 +4,30 @@ import { createClient, requireAuth } from "@/lib/supabase/server";
 
 type Period = "daily" | "weekly" | "monthly";
 
+export interface TransactionItem {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  products: { name: string };
+}
+
+export interface Transaction {
+  id: string;
+  total_price: number;
+  completed_at: string;
+  amount_received: number | null;
+  change_amount: number | null;
+  change_given: boolean;
+  order_items: TransactionItem[];
+}
+
 interface ReportResult {
   revenue: number;
   cost: number;
   profit: number;
   startDate: string;
   endDate: string;
+  transactions: Transaction[];
 }
 
 export async function getReport(period: Period): Promise<ReportResult> {
@@ -34,18 +52,20 @@ export async function getReport(period: Period): Promise<ReportResult> {
 
   const supabase = createClient();
 
-  // Revenue: sum of completed orders in period
-  const { data: revenueData } = await supabase
+  // Completed orders in period (with items for transaction table)
+  const { data: ordersData } = await supabase
     .from("orders")
-    .select("total_price")
+    .select(
+      "id, total_price, completed_at, amount_received, change_amount, change_given, order_items(product_id, quantity, unit_price, products(name))",
+    )
     .eq("status", "completed")
     .gte("completed_at", startISO)
-    .lte("completed_at", endISO);
+    .lte("completed_at", endISO)
+    .order("completed_at", { ascending: false });
 
-  const revenue = (revenueData ?? []).reduce(
-    (sum, row) => sum + Number(row.total_price),
-    0
-  );
+  const orders = (ordersData ?? []) as unknown as Transaction[];
+
+  const revenue = orders.reduce((sum, row) => sum + Number(row.total_price), 0);
 
   // Cost: sum of (|change_qty| × cost_per_unit) for negative log entries in period
   const { data: costData } = await supabase
@@ -57,7 +77,10 @@ export async function getReport(period: Period): Promise<ReportResult> {
 
   const cost = (costData ?? []).reduce((sum, row) => {
     const ingredient = row.ingredients as unknown as { cost_per_unit: number };
-    return sum + Math.abs(Number(row.change_qty)) * Number(ingredient?.cost_per_unit ?? 0);
+    return (
+      sum +
+      Math.abs(Number(row.change_qty)) * Number(ingredient?.cost_per_unit ?? 0)
+    );
   }, 0);
 
   return {
@@ -66,5 +89,6 @@ export async function getReport(period: Period): Promise<ReportResult> {
     profit: revenue - cost,
     startDate: startISO,
     endDate: endISO,
+    transactions: orders,
   };
 }
