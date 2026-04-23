@@ -112,7 +112,15 @@ export function createPosStore() {
 
     orders: [],
 
-    initOrders: (orders) => set({ orders }),
+    initOrders: (orders) =>
+      set((state) => {
+        const existingIds = new Set(state.orders.map((o) => o.id));
+        const merged = [
+          ...state.orders,
+          ...orders.filter((o) => !existingIds.has(o.id)),
+        ];
+        return { orders: merged };
+      }),
 
     addOrder: (order) =>
       set((state) => ({

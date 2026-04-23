@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/server";
 import Link from "next/link";
-import { logout } from "@/lib/actions/auth";
 import { Suspense } from "react";
 import OnboardingCheck from "@/components/materials/OnboardingCheck";
 import { getStoreSettings } from "@/lib/actions/store";
@@ -12,7 +11,6 @@ const navItems = [
   { href: "/pos", label: "POS", icon: "🛒" },
   { href: "/manage", label: "Inventory", icon: "📋" },
   { href: "/reports", label: "Reports", icon: "📊" },
-  { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export default async function DashboardLayout({
@@ -39,6 +37,7 @@ export default async function DashboardLayout({
       storeName={storeSettings.storeName}
       bannerUrl={storeSettings.bannerUrl}
       theme={storeSettings.theme}
+      email={user.email ?? ""}
     >
       <div className="flex min-h-screen flex-col">
         <Suspense fallback={null}>
@@ -57,15 +56,6 @@ export default async function DashboardLayout({
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           ))}
-          <form action={logout} className="flex flex-1">
-            <button
-              type="submit"
-              className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-400 hover:bg-gray-50 hover:text-red-500"
-            >
-              <span className="text-lg leading-none">🚪</span>
-              <span className="text-xs font-medium">Sign out</span>
-            </button>
-          </form>
         </nav>
       </div>
     </StoreSettingsProvider>
