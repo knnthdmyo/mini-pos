@@ -8,6 +8,8 @@ interface StoreSettingsContextValue {
   bannerUrl: string | null;
   theme: ThemePreset;
   email: string;
+  customPrimary: string | null;
+  customSecondary: string | null;
 }
 
 const StoreSettingsContext = createContext<StoreSettingsContextValue | null>(
@@ -29,11 +31,13 @@ export function StoreSettingsProvider({
   bannerUrl,
   theme,
   email,
+  customPrimary,
+  customSecondary,
   children,
 }: StoreSettingsContextValue & { children: React.ReactNode }) {
   return (
     <StoreSettingsContext.Provider
-      value={{ storeName, bannerUrl, theme, email }}
+      value={{ storeName, bannerUrl, theme, email, customPrimary, customSecondary }}
     >
       {children}
     </StoreSettingsContext.Provider>
