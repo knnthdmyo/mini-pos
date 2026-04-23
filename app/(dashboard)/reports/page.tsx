@@ -5,8 +5,8 @@ import {
   getReport,
   getChartData,
   listActiveProducts,
-  deriveDateRange,
 } from "@/lib/actions/reports";
+import { deriveDateRange } from "@/lib/reports-utils";
 import type {
   Metric,
   DatePreset,

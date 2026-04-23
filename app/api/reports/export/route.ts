@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { requireAuth } from "@/lib/supabase/server";
-import { getReport, deriveDateRange } from "@/lib/actions/reports";
+import { getReport } from "@/lib/actions/reports";
+import { deriveDateRange } from "@/lib/reports-utils";
 import type { DatePreset } from "@/lib/actions/reports";
 
 export async function GET(req: NextRequest) {
