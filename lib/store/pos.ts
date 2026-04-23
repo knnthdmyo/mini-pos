@@ -2,6 +2,7 @@ import { createStore } from "zustand/vanilla";
 
 export interface CartLine {
   productId: string;
+  variantId: string | null;
   name: string;
   unitPrice: number;
   quantity: number;
@@ -9,6 +10,7 @@ export interface CartLine {
 
 export interface OrderItem {
   product_id: string;
+  variant_id?: string | null;
   quantity: number;
   unit_price: number;
   products: { name: string };
@@ -22,11 +24,29 @@ export interface Order {
   order_items: OrderItem[];
 }
 
+/** Composite key for cart lines: productId or productId::variantId */
+function cartKey(productId: string, variantId: string | null): string {
+  return variantId ? `${productId}::${variantId}` : productId;
+}
+
+function lineKey(line: CartLine): string {
+  return cartKey(line.productId, line.variantId);
+}
+
 export interface PosState {
   cart: CartLine[];
-  addToCart: (product: { id: string; name: string; price: number }) => void;
-  removeFromCart: (productId: string) => void;
-  setCartQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: {
+    id: string;
+    variantId?: string | null;
+    name: string;
+    price: number;
+  }) => void;
+  removeFromCart: (productId: string, variantId?: string | null) => void;
+  setCartQuantity: (
+    productId: string,
+    quantity: number,
+    variantId?: string | null,
+  ) => void;
   clearCart: () => void;
   restoreCart: (lines: CartLine[]) => void;
 
@@ -46,13 +66,13 @@ export function createPosStore() {
 
     addToCart: (product) =>
       set((state) => {
-        const existing = state.cart.find((l) => l.productId === product.id);
+        const vid = product.variantId ?? null;
+        const key = cartKey(product.id, vid);
+        const existing = state.cart.find((l) => lineKey(l) === key);
         if (existing) {
           return {
             cart: state.cart.map((l) =>
-              l.productId === product.id
-                ? { ...l, quantity: l.quantity + 1 }
-                : l,
+              lineKey(l) === key ? { ...l, quantity: l.quantity + 1 } : l,
             ),
           };
         }
@@ -61,6 +81,7 @@ export function createPosStore() {
             ...state.cart,
             {
               productId: product.id,
+              variantId: vid,
               name: product.name,
               unitPrice: product.price,
               quantity: 1,
@@ -69,17 +90,21 @@ export function createPosStore() {
         };
       }),
 
-    removeFromCart: (productId) =>
-      set((state) => ({
-        cart: state.cart.filter((l) => l.productId !== productId),
-      })),
+    removeFromCart: (productId, variantId) =>
+      set((state) => {
+        const key = cartKey(productId, variantId ?? null);
+        return { cart: state.cart.filter((l) => lineKey(l) !== key) };
+      }),
 
-    setCartQuantity: (productId, quantity) =>
-      set((state) => ({
-        cart: state.cart.map((l) =>
-          l.productId === productId ? { ...l, quantity } : l,
-        ),
-      })),
+    setCartQuantity: (productId, quantity, variantId) =>
+      set((state) => {
+        const key = cartKey(productId, variantId ?? null);
+        return {
+          cart: state.cart.map((l) =>
+            lineKey(l) === key ? { ...l, quantity } : l,
+          ),
+        };
+      }),
 
     clearCart: () => set({ cart: [] }),
 

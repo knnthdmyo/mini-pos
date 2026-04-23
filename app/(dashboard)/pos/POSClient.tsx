@@ -11,6 +11,7 @@ import type { CartLine } from "@/lib/store/pos";
 
 interface Product {
   id: string;
+  variantId?: string | null;
   name: string;
   price: number;
   servingsLeft: number | null;
@@ -54,6 +55,7 @@ export function POSClient({ products }: POSClientProps) {
       created_at: new Date().toISOString(),
       order_items: snapshot.map((l) => ({
         product_id: l.productId,
+        variant_id: l.variantId,
         quantity: l.quantity,
         unit_price: l.unitPrice,
         products: { name: l.name },
@@ -64,7 +66,11 @@ export function POSClient({ products }: POSClientProps) {
 
     try {
       const realOrder = await placeOrder(
-        snapshot.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+        snapshot.map((l) => ({
+          productId: l.productId,
+          variantId: l.variantId,
+          quantity: l.quantity,
+        })),
       );
       replaceOrder(tempId, realOrder);
       showToast("Order placed!", "success");
@@ -81,12 +87,22 @@ export function POSClient({ products }: POSClientProps) {
   }
 
   return (
-    <div className="flex h-full flex-col p-4 pb-0">
+    <div className="flex h-full flex-col bg-gray-50 p-4 pb-0">
       <h1 className="mb-4 text-xl font-bold text-gray-900 hidden md:block">
         POS
       </h1>
       <div className="flex-1 overflow-y-auto">
-        <ProductGrid products={products} onAdd={(p) => addToCart(p)} />
+        <ProductGrid
+          products={products}
+          onAdd={(p) =>
+            addToCart({
+              id: p.id,
+              variantId: p.variantId,
+              name: p.name,
+              price: p.price,
+            })
+          }
+        />
         <CartSummary
           lines={cart}
           onSetQuantity={setCartQuantity}

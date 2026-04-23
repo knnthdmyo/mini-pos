@@ -13,7 +13,6 @@ interface ReportResult {
 }
 
 export async function getReport(period: Period): Promise<ReportResult> {
-  await requireAuth();
 
   const now = new Date();
   let start: Date;
