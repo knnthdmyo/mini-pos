@@ -6,6 +6,7 @@ import { OrderCard } from "./OrderCard";
 import { EditOrderModal } from "./EditOrderModal";
 
 interface OrderItem {
+  id: string;
   product_id: string;
   quantity: number;
   unit_price: number;
@@ -17,6 +18,9 @@ interface Order {
   status: string;
   total_price: number;
   created_at: string;
+  amount_received?: number;
+  change_amount?: number;
+  change_given?: boolean;
   order_items: OrderItem[];
 }
 
@@ -57,6 +61,12 @@ export function QueueList({
     }
   }
 
+  function handleOrderUpdate(updated: Order) {
+    onOrdersChange((prev) =>
+      prev.map((o) => (o.id === updated.id ? updated : o)),
+    );
+  }
+
   if (orders.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 text-sm text-gray-400">
@@ -75,6 +85,7 @@ export function QueueList({
             onComplete={onComplete}
             onEdit={setEditingOrder}
             onCancel={onCancel}
+            onOrderUpdate={handleOrderUpdate}
           />
         ))}
       </div>
