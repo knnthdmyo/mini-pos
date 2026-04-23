@@ -63,9 +63,9 @@ export async function addVariant(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 
   return { id: data.id };
 }
@@ -84,9 +84,9 @@ export async function updateVariant(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }
 
 export async function deleteVariant(id: string): Promise<void> {
@@ -100,7 +100,7 @@ export async function deleteVariant(id: string): Promise<void> {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }

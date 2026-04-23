@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import ProductCostingList from "@/components/costing/ProductCostingList";
 import CostingBuilder from "@/components/costing/CostingBuilder";
 import { getCosting } from "@/lib/actions/costing";
-import Link from "next/link";
 
 interface Variant {
   id: string;
@@ -125,15 +124,8 @@ export default function CostingPageClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Costing</h1>
-        <Link
-          href="/materials"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-        >
-          Manage Materials →
-        </Link>
-      </div>
+      <h1 className="text-xl font-bold text-gray-900">Costing</h1>
+
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3">

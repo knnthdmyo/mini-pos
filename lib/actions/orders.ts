@@ -61,7 +61,7 @@ export async function completeOrder(orderId: string): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/queue");
-  revalidatePath("/materials");
+  revalidatePath("/manage");
   revalidatePath("/reports");
 }
 
@@ -183,7 +183,7 @@ export async function editOrder(
     .eq("id", orderId);
 
   revalidatePath("/queue");
-  revalidatePath("/materials");
+  revalidatePath("/manage");
 }
 
 export async function cancelOrder(orderId: string): Promise<void> {
@@ -235,5 +235,5 @@ export async function cancelOrder(orderId: string): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/queue");
-  revalidatePath("/materials");
+  revalidatePath("/manage");
 }

@@ -319,9 +319,9 @@ export async function saveCosting(
       .eq("id", input.productId);
   }
 
-  revalidatePath("/costing");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/reports");
 
   return { costingId };
@@ -350,5 +350,5 @@ export async function deleteCosting(
   const { error } = await query;
   if (error) throw new Error(error.message);
 
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }

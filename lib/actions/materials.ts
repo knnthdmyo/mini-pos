@@ -74,9 +74,7 @@ export async function addMaterial(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/materials");
-  revalidatePath("/materials");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 
   return { id: data.id };
 }
@@ -104,9 +102,7 @@ export async function updateMaterial(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/materials");
-  revalidatePath("/materials");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }
 
 // ── T007: deleteMaterial ───────────────────────────────────────────
@@ -153,9 +149,7 @@ export async function deleteMaterial(
   const { error } = await supabase.from("ingredients").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/materials");
-  revalidatePath("/materials");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 
   return { deleted: true };
 }

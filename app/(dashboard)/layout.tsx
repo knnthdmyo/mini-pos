@@ -7,9 +7,7 @@ import OnboardingModal from "@/components/materials/OnboardingModal";
 
 const navItems = [
   { href: "/pos", label: "POS" },
-  { href: "/products", label: "Products" },
-  { href: "/materials", label: "Materials" },
-  { href: "/costing", label: "Costing" },
+  { href: "/manage", label: "Manage" },
   { href: "/reports", label: "Reports" },
 ];
 
@@ -32,7 +30,6 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <OnboardingModal showOnboarding={count === 0} />
-      {/* Bottom navigation — always visible, all primary actions no scroll */}
       <main className="flex-1 overflow-hidden">{children}</main>
       <nav className="fixed bottom-0 inset-x-0 z-50 flex h-16 items-stretch border-t border-gray-200 bg-white">
         {navItems.map((item) => (

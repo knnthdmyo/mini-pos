@@ -47,9 +47,9 @@ export async function addProduct(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 
   return { id: data.id };
 }
@@ -71,9 +71,9 @@ export async function updateProduct(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }
 
 export async function toggleProductActive(
@@ -90,9 +90,9 @@ export async function toggleProductActive(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 }
 
 export async function deleteProduct(
@@ -119,9 +119,9 @@ export async function deleteProduct(
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/products");
+  revalidatePath("/manage");
   revalidatePath("/pos");
-  revalidatePath("/costing");
+  revalidatePath("/manage");
 
   return { deleted: true };
 }
