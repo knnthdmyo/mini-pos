@@ -18,15 +18,25 @@ export function Toast({ message, type = "error", onDismiss }: ToastProps) {
     };
   }, [onDismiss]);
 
+  const styles =
+    type === "error"
+      ? "border-red-500/30 bg-red-500/20 text-red-800"
+      : "border-green-500/30 bg-green-500/20 text-green-800";
+
+  const icon = type === "error" ? "✕" : "✓";
+
   return (
     <div
       role="alert"
       className={[
-        "fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg backdrop-blur-md",
-        type === "error" ? "bg-red-600/90 text-white" : "bg-green-600/90 text-white",
+        "fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl border px-5 py-3 text-sm font-medium shadow-xl backdrop-blur-2xl",
+        styles,
       ].join(" ")}
     >
-      {message}
+      <span className="flex items-center gap-2">
+        <span className="text-base">{icon}</span>
+        {message}
+      </span>
     </div>
   );
 }
