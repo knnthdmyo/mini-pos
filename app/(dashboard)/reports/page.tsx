@@ -18,6 +18,7 @@ import type {
 } from "@/lib/actions/reports";
 import { ReportFilters } from "@/components/reports/ReportFilters";
 import { SalesByProductChart } from "@/components/reports/SalesByProductChart";
+import type { ProductChartType } from "@/components/reports/SalesByProductChart";
 import { PeakTimesChart } from "@/components/reports/PeakTimesChart";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
 import { TransactionTable } from "@/components/reports/TransactionTable";
@@ -31,6 +32,7 @@ export default function ReportsPage() {
   });
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
+  const [productChartType, setProductChartType] = useState<ProductChartType>("bar");
   const [showFilters, setShowFilters] = useState(false);
 
   const [chartData, setChartData] = useState<ChartData | null>(null);
@@ -127,6 +129,8 @@ export default function ReportsPage() {
       <SalesByProductChart
         data={chartData?.salesByProduct ?? []}
         metric={metric}
+        chartType={productChartType}
+        onChartTypeChange={setProductChartType}
         loading={isPending}
       />
 
