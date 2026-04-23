@@ -130,7 +130,7 @@ export default function ReportsPage() {
 
       {/* Charts row: 33 / 66 on desktop, stacked on mobile */}
       <div className="flex flex-col gap-4 lg:flex-row">
-        <div className="lg:w-1/3 lg:min-h-0">
+        <div className="lg:w-2/5 lg:min-h-0">
           <SalesByProductChart
             data={chartData?.salesByProduct ?? []}
             metric={metric}
@@ -139,7 +139,7 @@ export default function ReportsPage() {
             loading={isPending}
           />
         </div>
-        <div className="lg:w-2/3 lg:min-h-0">
+        <div className="lg:w-3/5 lg:min-h-0">
           <PeakTimesChart
             data={chartData?.peakTimes ?? []}
             metric={metric}
