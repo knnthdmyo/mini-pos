@@ -17,7 +17,6 @@ interface ProductRow {
 }
 
 export async function getProducts(): Promise<ProductRow[]> {
-  await requireAuth();
   const supabase = createClient();
 
   const { data, error } = await supabase

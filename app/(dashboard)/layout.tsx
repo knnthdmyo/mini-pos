@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import { logout } from "@/lib/actions/auth";
-import { getMaterialsCount } from "@/lib/actions/materials";
-import OnboardingModal from "@/components/materials/OnboardingModal";
+import { Suspense } from "react";
+import OnboardingCheck from "@/components/materials/OnboardingCheck";
 
 const navItems = [
   { href: "/pos", label: "POS", icon: "🛒" },
@@ -16,20 +16,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   if (!user) {
     redirect("/login");
   }
 
-  const { count } = await getMaterialsCount();
-
   return (
     <div className="flex min-h-screen flex-col">
-      <OnboardingModal showOnboarding={count === 0} />
+      <Suspense fallback={null}>
+        <OnboardingCheck />
+      </Suspense>
       <main className="flex-1 overflow-hidden">{children}</main>
       <nav className="fixed bottom-0 inset-x-0 z-50 flex h-16 items-stretch border-t border-gray-200 bg-white">
         {navItems.map((item) => (

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export function createClient() {
   const cookieStore = cookies();
@@ -33,16 +34,26 @@ export function createClient() {
 }
 
 /**
- * Verifies the current session and returns the user.
- * Throws 'UNAUTHORIZED' if no valid session exists.
- * Use this at the top of every Server Action.
+ * Cached getUser — deduplicates across all calls within the same
+ * React server render (layout + page + actions in a single request).
  */
-export async function requireAuth() {
+export const getUser = cache(async () => {
   const supabase = createClient();
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
+
+  return { user, error };
+});
+
+/**
+ * Verifies the current session and returns the user.
+ * Throws 'UNAUTHORIZED' if no valid session exists.
+ * Use this at the top of every Server Action that mutates data.
+ */
+export async function requireAuth() {
+  const { user, error } = await getUser();
 
   if (error || !user) {
     throw new Error("UNAUTHORIZED");

@@ -25,7 +25,6 @@ interface MaterialRow {
 // ── T003: getMaterialsCount ────────────────────────────────────────
 
 export async function getMaterialsCount(): Promise<{ count: number }> {
-  await requireAuth();
   const supabase = createClient();
 
   const { count, error } = await supabase
@@ -39,7 +38,6 @@ export async function getMaterialsCount(): Promise<{ count: number }> {
 // ── T004: getMaterials ─────────────────────────────────────────────
 
 export async function getMaterials(): Promise<MaterialRow[]> {
-  await requireAuth();
   const supabase = createClient();
 
   const { data, error } = await supabase

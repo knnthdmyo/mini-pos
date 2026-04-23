@@ -19,7 +19,6 @@ export interface VariantRow {
 }
 
 export async function getVariants(productId: string): Promise<VariantRow[]> {
-  await requireAuth();
   const supabase = createClient();
 
   const { data, error } = await supabase

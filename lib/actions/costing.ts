@@ -82,7 +82,6 @@ interface ProductWithCostingStatus {
 export async function getProductsWithCostingStatus(): Promise<
   ProductWithCostingStatus[]
 > {
-  await requireAuth();
   const supabase = createClient();
 
   const { data: products, error: pErr } = await supabase
@@ -167,7 +166,6 @@ export async function getCosting(
   productId: string,
   variantId?: string | null,
 ): Promise<CostingResult | null> {
-  await requireAuth();
   const supabase = createClient();
 
   let query = supabase
