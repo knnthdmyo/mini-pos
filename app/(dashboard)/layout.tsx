@@ -4,11 +4,15 @@ import Link from "next/link";
 import { logout } from "@/lib/actions/auth";
 import { Suspense } from "react";
 import OnboardingCheck from "@/components/materials/OnboardingCheck";
+import { getStoreSettings } from "@/lib/actions/store";
+import { StoreSettingsProvider } from "@/components/store/StoreSettingsProvider";
+import StoreHeader from "@/components/store/StoreHeader";
 
 const navItems = [
   { href: "/pos", label: "POS", icon: "🛒" },
   { href: "/manage", label: "Inventory", icon: "📋" },
   { href: "/reports", label: "Reports", icon: "📊" },
+  { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export default async function DashboardLayout({
@@ -22,33 +26,48 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const storeSettings = await getStoreSettings();
+
+  // Redirect to setup if no store settings exist
+  // /setup lives outside (dashboard) so this won't loop
+  if (!storeSettings) {
+    redirect("/setup");
+  }
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <Suspense fallback={null}>
-        <OnboardingCheck />
-      </Suspense>
-      <main className="flex-1 overflow-hidden">{children}</main>
-      <nav className="fixed bottom-0 inset-x-0 z-50 flex h-16 items-stretch border-t border-gray-200 bg-white">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 active:bg-gray-100"
-          >
-            <span className="text-lg leading-none">{item.icon}</span>
-            <span className="text-xs font-medium">{item.label}</span>
-          </Link>
-        ))}
-        <form action={logout} className="flex flex-1">
-          <button
-            type="submit"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-400 hover:bg-gray-50 hover:text-red-500"
-          >
-            <span className="text-lg leading-none">🚪</span>
-            <span className="text-xs font-medium">Sign out</span>
-          </button>
-        </form>
-      </nav>
-    </div>
+    <StoreSettingsProvider
+      storeName={storeSettings.storeName}
+      bannerUrl={storeSettings.bannerUrl}
+      theme={storeSettings.theme}
+    >
+      <div className="flex min-h-screen flex-col">
+        <Suspense fallback={null}>
+          <OnboardingCheck />
+        </Suspense>
+        <StoreHeader />
+        <main className="flex-1 overflow-hidden pb-16">{children}</main>
+        <nav className="fixed bottom-0 inset-x-0 z-50 flex h-16 items-stretch border-t border-gray-200 bg-white">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 active:bg-gray-100"
+            >
+              <span className="text-lg leading-none">{item.icon}</span>
+              <span className="text-xs font-medium">{item.label}</span>
+            </Link>
+          ))}
+          <form action={logout} className="flex flex-1">
+            <button
+              type="submit"
+              className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-400 hover:bg-gray-50 hover:text-red-500"
+            >
+              <span className="text-lg leading-none">🚪</span>
+              <span className="text-xs font-medium">Sign out</span>
+            </button>
+          </form>
+        </nav>
+      </div>
+    </StoreSettingsProvider>
   );
 }
