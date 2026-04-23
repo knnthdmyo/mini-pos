@@ -112,13 +112,14 @@ export default function ManageClient({
               key={s.key}
               onClick={() => setActive(s.key)}
               className={[
-                "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-semibold transition-colors",
+                "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold transition-colors",
                 active === s.key
                   ? "border-b-2 border-indigo-600 text-indigo-600"
                   : "text-gray-500",
               ].join(" ")}
             >
-              {s.label}
+              <span className="text-base leading-none">{s.icon}</span>
+              <span>{s.label}</span>
             </button>
           ))}
         </div>

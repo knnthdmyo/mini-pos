@@ -6,9 +6,9 @@ import { getMaterialsCount } from "@/lib/actions/materials";
 import OnboardingModal from "@/components/materials/OnboardingModal";
 
 const navItems = [
-  { href: "/pos", label: "POS" },
-  { href: "/manage", label: "Manage" },
-  { href: "/reports", label: "Reports" },
+  { href: "/pos", label: "POS", icon: "🛒" },
+  { href: "/manage", label: "Manage", icon: "⚙️" },
+  { href: "/reports", label: "Reports", icon: "📊" },
 ];
 
 export default async function DashboardLayout({
@@ -36,17 +36,19 @@ export default async function DashboardLayout({
           <Link
             key={item.href}
             href={item.href}
-            className="flex flex-1 items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-indigo-600 active:bg-gray-100"
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 active:bg-gray-100"
           >
-            {item.label}
+            <span className="text-lg leading-none">{item.icon}</span>
+            <span className="text-xs font-medium">{item.label}</span>
           </Link>
         ))}
         <form action={logout} className="flex flex-1">
           <button
             type="submit"
-            className="flex flex-1 items-center justify-center text-sm font-medium text-gray-400 hover:bg-gray-50 hover:text-red-500"
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-gray-400 hover:bg-gray-50 hover:text-red-500"
           >
-            Sign out
+            <span className="text-lg leading-none">🚪</span>
+            <span className="text-xs font-medium">Sign out</span>
           </button>
         </form>
       </nav>
