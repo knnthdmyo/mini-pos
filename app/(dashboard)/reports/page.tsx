@@ -126,6 +126,8 @@ export default function ReportsPage() {
         </p>
       )}
 
+      {reportData && <ProfitSummary {...reportData} />}
+
       {/* Charts row: 33 / 66 on desktop, stacked on mobile */}
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="lg:w-1/3 lg:min-h-0">
@@ -149,10 +151,7 @@ export default function ReportsPage() {
       </div>
 
       {reportData && (
-        <>
-          <ProfitSummary {...reportData} />
-          <TransactionTable transactions={reportData.transactions} />
-        </>
+        <TransactionTable transactions={reportData.transactions} />
       )}
 
       {!isPending && !error && !reportData && (
