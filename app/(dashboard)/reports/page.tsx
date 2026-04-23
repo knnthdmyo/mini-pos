@@ -10,7 +10,6 @@ import { deriveDateRange } from "@/lib/reports-utils";
 import type {
   Metric,
   DatePreset,
-  Granularity,
   PeakBasis,
   DateRange,
   ChartData,
@@ -18,7 +17,6 @@ import type {
   ReportResult,
 } from "@/lib/actions/reports";
 import { ReportFilters } from "@/components/reports/ReportFilters";
-import { SalesOverTimeChart } from "@/components/reports/SalesOverTimeChart";
 import { SalesByProductChart } from "@/components/reports/SalesByProductChart";
 import { PeakTimesChart } from "@/components/reports/PeakTimesChart";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
@@ -32,7 +30,6 @@ export default function ReportsPage() {
     end: new Date(),
   });
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [granularity, setGranularity] = useState<Granularity>("hourly");
   const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -61,7 +58,6 @@ export default function ReportsPage() {
           start: dateRange.start,
           end: dateRange.end,
           metric,
-          granularity,
           peakBasis,
           productIds: selectedProductIds,
         }),
@@ -77,7 +73,7 @@ export default function ReportsPage() {
         })
         .catch(() => setError("Failed to load report data. Please try again."));
     });
-  }, [dateRange, metric, granularity, peakBasis, selectedProductIds]);
+  }, [dateRange, metric, peakBasis, selectedProductIds]);
 
   async function handleExport() {
     setIsExporting(true);
@@ -115,8 +111,6 @@ export default function ReportsPage() {
     onDatePresetChange: setDatePreset,
     customRange,
     onCustomRangeChange: setCustomRange,
-    granularity,
-    onGranularityChange: setGranularity,
     selectedProductIds,
     onProductIdsChange: setSelectedProductIds,
     products,
@@ -129,12 +123,6 @@ export default function ReportsPage() {
           {error}
         </p>
       )}
-
-      <SalesOverTimeChart
-        data={chartData?.salesOverTime ?? []}
-        metric={metric}
-        loading={isPending}
-      />
 
       <SalesByProductChart
         data={chartData?.salesByProduct ?? []}

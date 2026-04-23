@@ -3,7 +3,6 @@
 import type {
   Metric,
   DatePreset,
-  Granularity,
   DateRange,
   ProductOption,
 } from "@/lib/actions/reports";
@@ -15,8 +14,6 @@ interface ReportFiltersProps {
   onDatePresetChange: (p: DatePreset) => void;
   customRange: DateRange;
   onCustomRangeChange: (r: DateRange) => void;
-  granularity: Granularity;
-  onGranularityChange: (g: Granularity) => void;
   selectedProductIds: string[];
   onProductIdsChange: (ids: string[]) => void;
   products: ProductOption[];
@@ -65,12 +62,6 @@ const METRICS: { label: string; value: Metric }[] = [
   { label: "Quantity", value: "quantity" },
 ];
 
-const GRANULARITIES: { label: string; value: Granularity }[] = [
-  { label: "Hourly", value: "hourly" },
-  { label: "Daily", value: "daily" },
-  { label: "Weekly", value: "weekly" },
-  { label: "Monthly", value: "monthly" },
-];
 
 export function ReportFilters({
   metric,
@@ -79,8 +70,6 @@ export function ReportFilters({
   onDatePresetChange,
   customRange,
   onCustomRangeChange,
-  granularity,
-  onGranularityChange,
   selectedProductIds,
   onProductIdsChange,
   products,
@@ -152,18 +141,6 @@ export function ReportFilters({
           options={METRICS}
           value={metric}
           onChange={onMetricChange}
-        />
-      </div>
-
-      {/* Granularity */}
-      <div className="space-y-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Group by
-        </p>
-        <ToggleGroup
-          options={GRANULARITIES}
-          value={granularity}
-          onChange={onGranularityChange}
         />
       </div>
 

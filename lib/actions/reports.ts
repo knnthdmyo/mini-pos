@@ -22,7 +22,6 @@ export interface ChartPoint {
 }
 
 export interface ChartData {
-  salesOverTime: ChartPoint[];
   salesByProduct: ChartPoint[];
   peakTimes: ChartPoint[]; // always 24 entries
 }
@@ -62,61 +61,6 @@ export interface ReportResult {
 }
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
-function bucketKey(date: Date, granularity: Granularity): string {
-  if (granularity === "hourly") {
-    return String(date.getHours()).padStart(2, "0");
-  }
-  if (granularity === "daily") {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  }
-  if (granularity === "weekly") {
-    // ISO week number
-    const tmp = new Date(date.getTime());
-    tmp.setHours(0, 0, 0, 0);
-    tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
-    const week1 = new Date(tmp.getFullYear(), 0, 4);
-    const weekNum =
-      1 +
-      Math.round(
-        ((tmp.getTime() - week1.getTime()) / 86400000 -
-          3 +
-          ((week1.getDay() + 6) % 7)) /
-          7,
-      );
-    return `${date.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
-  }
-  // monthly
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function labelFromKey(key: string, granularity: Granularity): string {
-  if (granularity === "hourly") {
-    const h = parseInt(key, 10);
-    if (h === 0) return "12am";
-    if (h < 12) return `${h}am`;
-    if (h === 12) return "12pm";
-    return `${h - 12}pm`;
-  }
-  if (granularity === "daily") {
-    const [, m, d] = key.split("-");
-    const months = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec",
-    ];
-    return `${months[parseInt(m, 10) - 1]} ${parseInt(d, 10)}`;
-  }
-  if (granularity === "weekly") {
-    return `Wk ${key.split("-W")[1]}`;
-  }
-  // monthly
-  const [yr, mo] = key.split("-");
-  const months = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec",
-  ];
-  return `${months[parseInt(mo, 10) - 1]} ${yr}`;
-}
-
 function hourLabel(hour: number): string {
   if (hour === 0) return "12am";
   if (hour < 12) return `${hour}am`;
@@ -142,12 +86,11 @@ export async function getChartData(filters: {
   start: Date;
   end: Date;
   metric: Metric;
-  granularity: Granularity;
   peakBasis: PeakBasis;
   productIds?: string[];
 }): Promise<ChartData> {
   await requireAuth();
-  const { start, end, metric, granularity, peakBasis, productIds } = filters;
+  const { start, end, metric, peakBasis, productIds } = filters;
   const supabase = createClient();
 
   // Query 1: orders + items + products
@@ -194,7 +137,6 @@ export async function getChartData(filters: {
   const filterIds = productIds && productIds.length > 0 ? new Set(productIds) : null;
 
   // Aggregation maps
-  const timeMap = new Map<string, number>();
   const productMap = new Map<string, number>();
   // Peak times: always 24 buckets
   const peakArr = Array.from({ length: 24 }, (_, i) => ({
@@ -231,10 +173,6 @@ export async function getChartData(filters: {
         itemValue = price * qty;
       }
 
-      // Sales over time
-      const key = bucketKey(completedDate, granularity);
-      timeMap.set(key, (timeMap.get(key) ?? 0) + itemValue);
-
       // Sales by product
       const pname = oi.products?.name ?? "Unknown";
       productMap.set(pname, (productMap.get(pname) ?? 0) + itemValue);
@@ -243,14 +181,6 @@ export async function getChartData(filters: {
       peakArr[hour].value += itemValue;
     }
   }
-
-  // Build salesOverTime sorted by key
-  const salesOverTime: ChartPoint[] = Array.from(timeMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => ({
-      label: labelFromKey(key, granularity),
-      value: Math.round(value * 100) / 100,
-    }));
 
   // Build salesByProduct sorted by value desc
   const salesByProduct: ChartPoint[] = Array.from(productMap.entries())
@@ -261,7 +191,6 @@ export async function getChartData(filters: {
     }));
 
   return {
-    salesOverTime,
     salesByProduct,
     peakTimes: peakArr.map((p) => ({
       ...p,
