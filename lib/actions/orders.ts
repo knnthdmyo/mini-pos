@@ -17,15 +17,27 @@ interface PlacedOrderItem {
   products: { name: string };
 }
 
+interface PaymentParams {
+  amountReceived: number;
+  changeAmount: number;
+  changeGiven: boolean;
+}
+
 interface PlacedOrder {
   id: string;
   status: string;
   total_price: number;
   created_at: string;
+  amount_received: number;
+  change_amount: number;
+  change_given: boolean;
   order_items: PlacedOrderItem[];
 }
 
-export async function placeOrder(items: OrderItem[]): Promise<PlacedOrder> {
+export async function placeOrder(
+  items: OrderItem[],
+  payment?: PaymentParams,
+): Promise<PlacedOrder> {
   await requireAuth();
 
   if (!items || items.length === 0) {
@@ -40,6 +52,9 @@ export async function placeOrder(items: OrderItem[]): Promise<PlacedOrder> {
       variantId: i.variantId ?? null,
       quantity: i.quantity,
     })),
+    p_amount_received: payment?.amountReceived ?? 0,
+    p_change_amount: payment?.changeAmount ?? 0,
+    p_change_given: payment?.changeGiven ?? true,
   });
 
   if (error) throw new Error(error.message);
@@ -236,4 +251,20 @@ export async function cancelOrder(orderId: string): Promise<void> {
 
   revalidatePath("/queue");
   revalidatePath("/manage");
+}
+
+export async function markChangeGiven(orderId: string): Promise<void> {
+  await requireAuth();
+
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("orders")
+    .update({ change_given: true })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/pos");
+  revalidatePath("/queue");
 }

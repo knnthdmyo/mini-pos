@@ -21,6 +21,9 @@ export interface Order {
   status: string;
   total_price: number;
   created_at: string;
+  amount_received?: number;
+  change_amount?: number;
+  change_given?: boolean;
   order_items: OrderItem[];
 }
 
