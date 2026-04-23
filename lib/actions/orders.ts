@@ -8,9 +8,24 @@ interface OrderItem {
   quantity: number;
 }
 
+interface PlacedOrderItem {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  products: { name: string };
+}
+
+interface PlacedOrder {
+  id: string;
+  status: string;
+  total_price: number;
+  created_at: string;
+  order_items: PlacedOrderItem[];
+}
+
 export async function placeOrder(
   items: OrderItem[],
-): Promise<{ orderId: string }> {
+): Promise<PlacedOrder> {
   await requireAuth();
 
   if (!items || items.length === 0) {
@@ -19,58 +34,13 @@ export async function placeOrder(
 
   const supabase = createClient();
 
-  // Fetch product prices
-  const productIds = items.map((i) => i.productId);
-  const { data: products, error: productsError } = await supabase
-    .from("products")
-    .select("id, price, is_active")
-    .in("id", productIds);
+  const { data, error } = await supabase.rpc("place_order", {
+    p_items: items,
+  });
 
-  if (productsError) throw new Error(productsError.message);
+  if (error) throw new Error(error.message);
 
-  const productMap = new Map(products?.map((p) => [p.id, p]));
-
-  // Validate all products are active
-  for (const item of items) {
-    const product = productMap.get(item.productId);
-    if (!product || !product.is_active) {
-      throw new Error("INVALID_PRODUCT");
-    }
-  }
-
-  // Compute total
-  const totalPrice = items.reduce((sum, item) => {
-    const product = productMap.get(item.productId)!;
-    return sum + product.price * item.quantity;
-  }, 0);
-
-  // Insert order
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({ status: "placed", total_price: totalPrice })
-    .select("id")
-    .single();
-
-  if (orderError || !order)
-    throw new Error(orderError?.message ?? "ORDER_FAILED");
-
-  // Insert order items
-  const orderItems = items.map((item) => ({
-    order_id: order.id,
-    product_id: item.productId,
-    quantity: item.quantity,
-    unit_price: productMap.get(item.productId)!.price,
-  }));
-
-  const { error: itemsError } = await supabase
-    .from("order_items")
-    .insert(orderItems);
-
-  if (itemsError) throw new Error(itemsError.message);
-
-  revalidatePath("/queue");
-
-  return { orderId: order.id };
+  return data as PlacedOrder;
 }
 
 export async function completeOrder(orderId: string): Promise<void> {

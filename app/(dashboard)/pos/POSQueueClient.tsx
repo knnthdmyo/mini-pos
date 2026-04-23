@@ -4,21 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { POSClient } from "./POSClient";
 import { QueueList } from "@/components/queue/QueueList";
-
-interface OrderItem {
-  product_id: string;
-  quantity: number;
-  unit_price: number;
-  products: { name: string };
-}
-
-interface Order {
-  id: string;
-  status: string;
-  total_price: number;
-  created_at: string;
-  order_items: OrderItem[];
-}
+import { usePosStore } from "@/lib/store/pos";
+import type { Order } from "@/lib/store/pos";
 
 interface Product {
   id: string;
@@ -41,8 +28,15 @@ export function POSQueueClient({
   products,
   productsWithStock,
 }: Props) {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const { orders, initOrders, addOrder, removeOrder, updateOrders } =
+    usePosStore();
   const [activeTab, setActiveTab] = useState<"pos" | "queue">("pos");
+
+  // Seed store with server-rendered orders on first mount
+  useEffect(() => {
+    initOrders(initialOrders);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -56,28 +50,24 @@ export function POSQueueClient({
           const record = payload.new as Order & { status: string };
 
           if (payload.eventType === "INSERT" && record.status === "placed") {
-            setOrders((prev) => {
-              if (prev.some((o) => o.id === record.id)) return prev;
-              supabase
-                .from("orders")
-                .select("*, order_items(*, products(name))")
-                .eq("id", record.id)
-                .single()
-                .then(({ data }) => {
-                  if (data) {
-                    setOrders((p) =>
-                      p.some((o) => o.id === data.id)
-                        ? p
-                        : [...p, data as Order],
-                    );
-                  }
-                });
-              return prev;
-            });
+            // If the order is already in the store (optimistic or from server
+            // action return), the dedup check in addOrder will skip it.
+            // Only fetch full data for orders from other devices.
+            const current = usePosStore.getState().orders;
+            if (current.some((o) => o.id === record.id)) return;
+
+            supabase
+              .from("orders")
+              .select("*, order_items(*, products(name))")
+              .eq("id", record.id)
+              .single()
+              .then(({ data }) => {
+                if (data) addOrder(data as Order);
+              });
           }
 
           if (payload.eventType === "UPDATE" && record.status === "completed") {
-            setOrders((prev) => prev.filter((o) => o.id !== record.id));
+            removeOrder(record.id);
           }
         },
       )
@@ -86,29 +76,7 @@ export function POSQueueClient({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  async function handleOrderPlaced(orderId: string) {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("orders")
-      .select("*, order_items(*, products(name))")
-      .eq("id", orderId)
-      .single();
-    if (data) {
-      setOrders((prev) =>
-        prev.some((o) => o.id === data.id) ? prev : [...prev, data as Order],
-      );
-    }
-  }
-
-  function handleComplete(orderId: string) {
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
-  }
-
-  function handleCancel(orderId: string) {
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
-  }
+  }, [addOrder, removeOrder]);
 
   const queuePanel = (
     <div className="flex flex-col h-full overflow-hidden bg-gray-50">
@@ -119,9 +87,9 @@ export function POSQueueClient({
         <QueueList
           orders={orders}
           products={products}
-          onComplete={handleComplete}
-          onCancel={handleCancel}
-          onOrdersChange={setOrders}
+          onComplete={removeOrder}
+          onCancel={removeOrder}
+          onOrdersChange={updateOrders}
         />
       </div>
     </div>
@@ -157,10 +125,7 @@ export function POSQueueClient({
         {/* Tab content */}
         <div className="flex-1 overflow-hidden">
           {activeTab === "pos" ? (
-            <POSClient
-              products={productsWithStock}
-              onOrderPlaced={handleOrderPlaced}
-            />
+            <POSClient products={productsWithStock} />
           ) : (
             queuePanel
           )}
@@ -170,10 +135,7 @@ export function POSQueueClient({
       {/* ── Desktop: two-column layout ── */}
       <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
         <div className="flex flex-1 flex-col overflow-hidden">
-          <POSClient
-            products={productsWithStock}
-            onOrderPlaced={handleOrderPlaced}
-          />
+          <POSClient products={productsWithStock} />
         </div>
         <div className="flex w-[420px] shrink-0 flex-col overflow-hidden">
           {queuePanel}
