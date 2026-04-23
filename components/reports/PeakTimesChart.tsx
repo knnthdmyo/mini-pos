@@ -32,7 +32,7 @@ export function PeakTimesChart({
   loading,
 }: PeakTimesChartProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-gray-800">Peak Times</h2>
         <div className="flex gap-1">

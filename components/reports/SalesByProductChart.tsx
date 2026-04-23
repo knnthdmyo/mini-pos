@@ -48,7 +48,7 @@ export function SalesByProductChart({
   const barHeight = isHorizontal ? Math.max(280, data.length * 36) : 260;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-gray-800">Sales by Product</h2>
         <div className="flex gap-1">
@@ -78,9 +78,9 @@ export function SalesByProductChart({
       </div>
 
       {loading ? (
-        <div className="h-[260px] animate-pulse rounded-lg bg-gray-100" />
+        <div className="min-h-[260px] flex-1 animate-pulse rounded-lg bg-gray-100" />
       ) : data.length === 0 ? (
-        <div className="flex h-[260px] items-center justify-center text-sm text-gray-400">
+        <div className="flex min-h-[260px] flex-1 items-center justify-center text-sm text-gray-400">
           No data for this period
         </div>
       ) : chartType === "pie" ? (
