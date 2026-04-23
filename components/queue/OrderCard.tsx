@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { completeOrder, cancelOrder } from "@/lib/actions/orders";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Toast, useToast } from "@/components/ui/Toast";
 
 interface OrderItem {
   product_id: string;
@@ -56,6 +57,7 @@ export function OrderCard({
   const [completing, setCompleting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const { toast, showToast, dismiss } = useToast();
   const elapsed = useElapsed(order.created_at);
 
   async function handleComplete() {
@@ -64,7 +66,10 @@ export function OrderCard({
       await completeOrder(order.id);
       onComplete(order.id);
     } catch (err) {
-      console.error(err);
+      showToast(
+        err instanceof Error ? err.message : "Failed to complete order",
+        "error",
+      );
     } finally {
       setCompleting(false);
     }
@@ -76,7 +81,10 @@ export function OrderCard({
       await cancelOrder(order.id);
       onCancel(order.id);
     } catch (err) {
-      console.error(err);
+      showToast(
+        err instanceof Error ? err.message : "Failed to cancel order",
+        "error",
+      );
       setCancelling(false);
       setConfirmOpen(false);
     }
@@ -162,6 +170,10 @@ export function OrderCard({
             </div>
           </div>
         </div>
+      )}
+
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onDismiss={dismiss} />
       )}
     </>
   );

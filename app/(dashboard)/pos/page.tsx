@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { POSQueueClient } from "./POSQueueClient";
+import { PosStoreProvider } from "@/lib/store/PosStoreProvider";
 
 export default async function POSPage() {
   const supabase = createClient();
@@ -41,11 +42,13 @@ export default async function POSPage() {
   }));
 
   return (
-    <POSQueueClient
-      initialOrders={orders ?? []}
-      products={products ?? []}
-      productsWithStock={productsWithStock}
-    />
+    <PosStoreProvider>
+      <POSQueueClient
+        initialOrders={orders ?? []}
+        products={products ?? []}
+        productsWithStock={productsWithStock}
+      />
+    </PosStoreProvider>
   );
 }
 
