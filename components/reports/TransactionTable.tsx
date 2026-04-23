@@ -42,11 +42,7 @@ export function TransactionTable({ transactions }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="border-b border-gray-100 px-4 py-3">
-        <h2 className="text-sm font-semibold text-gray-700">Transactions</h2>
-      </div>
-
+    <div className="overflow-hidden rounded-2xl bg-white">
       <ul className="divide-y divide-gray-50">
         {transactions.map((tx) => {
           const isOpen = expandedIds.has(tx.id);

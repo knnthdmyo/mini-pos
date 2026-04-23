@@ -244,7 +244,7 @@ export default function ReportsPage() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setShowTransactions(false)}
           />
-          <div className="relative flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-2xl sm:rounded-2xl bg-white shadow-xl">
+          <div className="relative flex max-h-[85dvh] w-full max-w-4xl flex-col rounded-t-2xl sm:rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <h2 className="text-sm font-semibold text-gray-700">Transactions</h2>
               <div className="flex items-center gap-2">
