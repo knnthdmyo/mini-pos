@@ -16,6 +16,7 @@ A mobile-friendly point-of-sale and inventory management system for small food b
 - [Supabase](https://supabase.com/) (Postgres, Auth, Realtime)
 - [Tailwind CSS](https://tailwindcss.com/)
 - TypeScript
+- [Recharts](https://recharts.org/) — composable charting library for reports
 - [SpecKit](https://github.com/speckit-dev/speckit) — spec-first development workflow
 
 ## Development Workflow
