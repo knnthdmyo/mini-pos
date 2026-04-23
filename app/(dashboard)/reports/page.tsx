@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { getReport } from "@/lib/actions/reports";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
 
@@ -38,6 +38,10 @@ export default function ReportsPage() {
       }
     });
   }
+
+  // Auto-load today's report on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { handleSelect("daily"); }, []);
 
   return (
     <div className="h-[calc(100dvh-4rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
