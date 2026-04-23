@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   if (!settings) redirect("/setup");
 
   return (
-    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-gray-50 pt-4 pb-20">
+    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-brand-bg pt-4 pb-20">
       <StoreSetupForm
         mode="edit"
         userId={user.id}
@@ -19,6 +19,8 @@ export default async function SettingsPage() {
           storeName: settings.storeName,
           bannerUrl: settings.bannerUrl,
           theme: settings.theme,
+          customPrimary: settings.customPrimary,
+          customSecondary: settings.customSecondary,
         }}
       />
     </div>
