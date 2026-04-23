@@ -1,14 +1,20 @@
 <!--
   Sync Impact Report
-  Version change: (template) → 1.0.0
-  Modified principles: N/A (initial ratification)
-  Added sections: Core Purpose, Non-Negotiable Principles (×5),
-    MVP Scope Boundaries, Data Integrity Rules, UX Rules, Evolution Rule, Governance
-  Removed sections: N/A
+  Version change: 1.0.0 → 1.1.0
+  Modified principles: None renamed
+  Added sections:
+    - Principle VI. Personalization Without Performance Cost (new)
+    - MVP Scope Boundaries → Included in v3 (Branding & Theme Onboarding)
+    - Data Integrity Rules → store_settings entry
+    - UX Rules → theme/branding constraints
+  Removed sections: None
   Templates requiring updates:
     - .specify/templates/plan-template.md: Constitution Check gates → ✅ updated
-    - .specify/templates/spec-template.md: Scope alignment → ✅ no structural changes required
-    - .specify/templates/tasks-template.md: Task categories → ✅ no new principle-driven types required
+      (added Principle VI checkbox for branding features)
+    - .specify/templates/spec-template.md: Scope alignment → ✅ no structural
+      changes required
+    - .specify/templates/tasks-template.md: Task categories → ✅ no new
+      principle-driven types required
   Follow-up TODOs: none
 -->
 
@@ -61,6 +67,16 @@ The system is designed for one tablet operated by one person fulfilling both
 cashier and preparation roles. Features MUST NOT require multi-device
 coordination. No functionality may depend on real-time multi-user sync in MVP.
 
+### VI. Personalization Without Performance Cost
+
+Store branding and theme settings MUST be loaded once at app initialization and
+cached for the session — never re-fetched per page navigation or per order.
+Theme application MUST use static CSS class swaps (Tailwind presets); runtime
+style computation is prohibited. Banner/logo assets MUST be served from
+Supabase Storage with appropriate caching headers. Onboarding MUST be a
+one-time step that does not appear during normal POS operation. No branding
+feature may add latency to the order creation, queue, or reporting flows.
+
 ## MVP Scope Boundaries
 
 ### Included in v1
@@ -72,6 +88,14 @@ coordination. No functionality may depend on real-time multi-user sync in MVP.
 - Reporting (revenue, cost, profit)
 - Low stock alerts (email)
 
+### Included in v3 (Branding & Theme Onboarding)
+
+- First-login onboarding step (store name, banner/logo upload, theme preset)
+- Store settings persistence in `store_settings` table
+- Global theme application across POS, Queue, and Reports headers
+- Live preview during onboarding (optional, preferred)
+- Store settings edit page (post-onboarding)
+
 ### Excluded from v1
 
 - Offline support
@@ -80,8 +104,16 @@ coordination. No functionality may depend on real-time multi-user sync in MVP.
 - Multi-device sync optimization
 - Supplier management
 
-Any feature in the Excluded list MUST NOT be designed, implemented, or partially
-built during MVP. Scope creep violations MUST be flagged immediately.
+### Excluded from v3
+
+- Advanced theming (custom color pickers, CSS editor)
+- Multiple themes per user
+- Heavy UI customization beyond preset themes
+- Font customization
+
+Any feature in an Excluded list MUST NOT be designed, implemented, or partially
+built during its respective MVP phase. Scope creep violations MUST be flagged
+immediately.
 
 ## Data Integrity Rules
 
@@ -89,6 +121,9 @@ built during MVP. Scope creep violations MUST be flagged immediately.
 - Inventory logs are the source of truth for cost.
 - All mutations MUST be logged — no silent state changes are permitted.
 - Every inventory deduction MUST be traceable to an order or a manual adjustment.
+- `store_settings` MUST have exactly one row per authenticated user. Updates
+  MUST overwrite — never insert duplicates. Banner URLs MUST reference valid
+  Supabase Storage objects; stale URLs from replaced uploads MUST be cleaned up.
 
 ## UX Rules
 
@@ -96,6 +131,11 @@ built during MVP. Scope creep violations MUST be flagged immediately.
 - Buttons MUST be large and tap-friendly (designed for tablet touch).
 - The system MUST always show current state — no hidden steps or pending
   ambiguities.
+- Theme changes MUST apply instantly in the live preview and globally after save.
+- Onboarding MUST be skippable — the system MUST function with default settings
+  if the user dismisses or defers onboarding.
+- The store name and banner MUST appear consistently in POS, Queue, and Reports
+  headers without altering the layout or obscuring primary actions.
 
 ## Evolution Rule
 
@@ -123,4 +163,4 @@ delayed until it can.
 - The plan-template.md Constitution Check gate uses the principles defined here
   as compliance criteria.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20
+**Version**: 1.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-23

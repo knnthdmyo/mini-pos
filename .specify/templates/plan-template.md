@@ -43,6 +43,9 @@ Validate the feature against each principle from `.specify/memory/constitution.m
       Does the feature avoid blocking core operations on bad state?
 - [ ] **V. Single-Device Optimized** — Does this feature function on one tablet
       without multi-device coordination or real-time sync?
+- [ ] **VI. Personalization Without Performance Cost** — If this feature touches
+      branding/theme, are settings loaded once and cached? No runtime style
+      computation? No latency added to POS, queue, or reporting flows?
 - [ ] **Scope** — Is this feature in the MVP Included list? (POS, Queue, Inventory,
       Batch Prep, Reporting, Low Stock Alerts.) If not, flag immediately.
 - [ ] **Data Integrity** — Are all mutations logged? Are inventory deductions
