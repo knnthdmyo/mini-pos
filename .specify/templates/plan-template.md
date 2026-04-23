@@ -43,12 +43,23 @@ Validate the feature against each principle from `.specify/memory/constitution.m
       Does the feature avoid blocking core operations on bad state?
 - [ ] **V. Single-Device Optimized** — Does this feature function on one tablet
       without multi-device coordination or real-time sync?
-- [ ] **Scope** — Is this feature in the MVP Included list? (POS, Queue, Inventory,
-      Batch Prep, Reporting, Low Stock Alerts.) If not, flag immediately.
+- [ ] **VI. Accuracy Over Speed (Admin Only)** — If this feature touches costing,
+      are all calculations mathematically correct and traceable? No hidden formulas?
+- [ ] **VII. Separation of Concerns** — Does this feature keep POS fast and simple?
+      Does it avoid adding costing complexity to the POS flow?
+- [ ] **VIII. Batch-Based Thinking** — Is all costing computed at batch/yield level?
+      Is single-item cost derived from batch, never entered directly?
+- [ ] **IX. Editable System** — Are suggested values (SRP, cost) editable by admin?
+      Does the system assist without enforcing?
+- [ ] **X. Transparency** — Does the costing UI show full breakdown (materials,
+      overhead, labor, total, profit)? No black-box formulas?
+- [ ] **Scope** — Is this feature in the MVP1 or MVP2 Included list? If not, flag
+      immediately.
 - [ ] **Data Integrity** — Are all mutations logged? Are inventory deductions
-      traceable to an order or manual adjustment?
+      traceable to an order or manual adjustment? Is material cost the source of
+      truth for costing?
 - [ ] **Evolution Rule** — Does this feature satisfy all three evolution conditions?
-      (No POS slowdown, no extra taps, no inventory accuracy regression.)
+      (No POS slowdown, no extra taps, no inventory/costing accuracy regression.)
 
 ## Project Structure
 

@@ -2,11 +2,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { logout } from "@/lib/actions/auth";
+import { getMaterialsCount } from "@/lib/actions/materials";
+import OnboardingModal from "@/components/materials/OnboardingModal";
 
 const navItems = [
   { href: "/pos", label: "POS" },
-  { href: "/inventory", label: "Inventory" },
-  { href: "/batch", label: "Batch Prep" },
+  { href: "/products", label: "Products" },
+  { href: "/materials", label: "Materials" },
+  { href: "/costing", label: "Costing" },
   { href: "/reports", label: "Reports" },
 ];
 
@@ -24,8 +27,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const { count } = await getMaterialsCount();
+
   return (
     <div className="flex min-h-screen flex-col">
+      <OnboardingModal showOnboarding={count === 0} />
       {/* Bottom navigation — always visible, all primary actions no scroll */}
       <main className="flex-1 overflow-hidden">{children}</main>
       <nav className="fixed bottom-0 inset-x-0 z-50 flex h-16 items-stretch border-t border-gray-200 bg-white">
