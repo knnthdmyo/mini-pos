@@ -126,21 +126,27 @@ export default function ReportsPage() {
         </p>
       )}
 
-      <SalesByProductChart
-        data={chartData?.salesByProduct ?? []}
-        metric={metric}
-        chartType={productChartType}
-        onChartTypeChange={setProductChartType}
-        loading={isPending}
-      />
-
-      <PeakTimesChart
-        data={chartData?.peakTimes ?? []}
-        metric={metric}
-        peakBasis={peakBasis}
-        onPeakBasisChange={setPeakBasis}
-        loading={isPending}
-      />
+      {/* Charts row: 33 / 66 on desktop, stacked on mobile */}
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="lg:w-1/3">
+          <SalesByProductChart
+            data={chartData?.salesByProduct ?? []}
+            metric={metric}
+            chartType={productChartType}
+            onChartTypeChange={setProductChartType}
+            loading={isPending}
+          />
+        </div>
+        <div className="lg:w-2/3">
+          <PeakTimesChart
+            data={chartData?.peakTimes ?? []}
+            metric={metric}
+            peakBasis={peakBasis}
+            onPeakBasisChange={setPeakBasis}
+            loading={isPending}
+          />
+        </div>
+      </div>
 
       {reportData && (
         <>
