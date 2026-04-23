@@ -44,7 +44,7 @@ export default function ReportsPage() {
   useEffect(() => { handleSelect("daily"); }, []);
 
   return (
-    <div className="h-[calc(100dvh-4rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
+    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
       <div className="mx-auto max-w-3xl space-y-6">
         <h1 className="text-xl font-bold text-gray-900">Reports</h1>
 

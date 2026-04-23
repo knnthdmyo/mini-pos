@@ -104,7 +104,7 @@ export default function ManageClient({
   return (
     <>
       {/* ── Mobile: tab layout ── */}
-      <div className="flex h-[calc(100dvh-4rem)] flex-col md:hidden">
+      <div className="flex h-[calc(100dvh-8rem)] flex-col md:hidden">
         {/* Tab bar */}
         <div className="flex shrink-0 border-b border-gray-200 bg-white">
           {SECTIONS.map((s) => (
@@ -131,7 +131,7 @@ export default function ManageClient({
       </div>
 
       {/* ── Desktop: two-column layout ── */}
-      <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
+      <div className="hidden md:flex h-[calc(100dvh-8rem)] divide-x divide-gray-200 overflow-hidden">
         {/* Left sidebar */}
         <div className="w-64 shrink-0 overflow-y-auto bg-gray-50 p-4">
           <h2 className="mb-4 text-lg font-bold text-gray-900">Inventory</h2>

@@ -100,7 +100,7 @@ export function POSQueueClient({
   return (
     <>
       {/* ── Mobile: tab layout ── */}
-      <div className="flex flex-col h-[calc(100dvh-4rem)] md:hidden">
+      <div className="flex flex-col h-[calc(100dvh-8rem)] md:hidden">
         {/* Tab bar */}
         <div className="flex shrink-0 border-b border-gray-200 bg-white">
           {(["pos", "queue"] as const).map((tab) => (
@@ -135,7 +135,7 @@ export function POSQueueClient({
       </div>
 
       {/* ── Desktop: two-column layout ── */}
-      <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
+      <div className="hidden md:flex h-[calc(100dvh-8rem)] divide-x divide-gray-200 overflow-hidden">
         <div className="flex flex-1 flex-col overflow-hidden">
           <POSClient products={productsWithStock} />
         </div>
