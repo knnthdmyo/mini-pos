@@ -98,13 +98,12 @@ export function POSClient({ products, onOrderPlaced }: POSClientProps) {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col p-4 pb-0">
       {/* Scrollable content */}
-      <div className="flex-1 flex-col overflow-y-auto p-4 pb-0 gap-10">
-        <h1 className="mb-4 text-xl font-bold text-gray-900 hidden md:block">
-          POS
-        </h1>
-
+      <h1 className="mb-4 text-xl font-bold text-gray-900 hidden md:block">
+        POS
+      </h1>
+      <div className="flex-1 overflow-y-auto">
         {feedback && (
           <div
             className={[
