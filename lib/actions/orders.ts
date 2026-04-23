@@ -5,12 +5,27 @@ import { revalidatePath } from "next/cache";
 
 interface OrderItem {
   productId: string;
+  variantId?: string | null;
   quantity: number;
 }
 
-export async function placeOrder(
-  items: OrderItem[],
-): Promise<{ orderId: string }> {
+interface PlacedOrderItem {
+  product_id: string;
+  variant_id?: string | null;
+  quantity: number;
+  unit_price: number;
+  products: { name: string };
+}
+
+interface PlacedOrder {
+  id: string;
+  status: string;
+  total_price: number;
+  created_at: string;
+  order_items: PlacedOrderItem[];
+}
+
+export async function placeOrder(items: OrderItem[]): Promise<PlacedOrder> {
   await requireAuth();
 
   if (!items || items.length === 0) {
@@ -19,58 +34,19 @@ export async function placeOrder(
 
   const supabase = createClient();
 
-  // Fetch product prices
-  const productIds = items.map((i) => i.productId);
-  const { data: products, error: productsError } = await supabase
-    .from("products")
-    .select("id, price, is_active")
-    .in("id", productIds);
+  const { data, error } = await supabase.rpc("place_order", {
+    p_items: items.map((i) => ({
+      productId: i.productId,
+      variantId: i.variantId ?? null,
+      quantity: i.quantity,
+    })),
+  });
 
-  if (productsError) throw new Error(productsError.message);
-
-  const productMap = new Map(products?.map((p) => [p.id, p]));
-
-  // Validate all products are active
-  for (const item of items) {
-    const product = productMap.get(item.productId);
-    if (!product || !product.is_active) {
-      throw new Error("INVALID_PRODUCT");
-    }
-  }
-
-  // Compute total
-  const totalPrice = items.reduce((sum, item) => {
-    const product = productMap.get(item.productId)!;
-    return sum + product.price * item.quantity;
-  }, 0);
-
-  // Insert order
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({ status: "placed", total_price: totalPrice })
-    .select("id")
-    .single();
-
-  if (orderError || !order)
-    throw new Error(orderError?.message ?? "ORDER_FAILED");
-
-  // Insert order items
-  const orderItems = items.map((item) => ({
-    order_id: order.id,
-    product_id: item.productId,
-    quantity: item.quantity,
-    unit_price: productMap.get(item.productId)!.price,
-  }));
-
-  const { error: itemsError } = await supabase
-    .from("order_items")
-    .insert(orderItems);
-
-  if (itemsError) throw new Error(itemsError.message);
+  if (error) throw new Error(error.message);
 
   revalidatePath("/queue");
 
-  return { orderId: order.id };
+  return data as PlacedOrder;
 }
 
 export async function completeOrder(orderId: string): Promise<void> {
@@ -85,7 +61,7 @@ export async function completeOrder(orderId: string): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/queue");
-  revalidatePath("/inventory");
+  revalidatePath("/manage");
   revalidatePath("/reports");
 }
 
@@ -110,7 +86,7 @@ export async function editOrder(
 
   if (orderError || !order) throw new Error("INVALID_ORDER");
 
-  // Fetch product prices
+  // Fetch product prices and variant prices
   const productIds = items.map((i) => i.productId);
   const { data: products, error: productsError } = await supabase
     .from("products")
@@ -121,6 +97,21 @@ export async function editOrder(
 
   const productMap = new Map(products?.map((p) => [p.id, p]));
 
+  // Fetch variant prices if any items have variantId
+  const variantIds = items
+    .map((i) => i.variantId)
+    .filter((v): v is string => !!v);
+  const variantMap = new Map<string, { price: number }>();
+  if (variantIds.length > 0) {
+    const { data: variants } = await supabase
+      .from("product_variants")
+      .select("id, price")
+      .in("id", variantIds);
+    for (const v of variants ?? []) {
+      variantMap.set(v.id, { price: Number(v.price) });
+    }
+  }
+
   // Delete old order items
   const { error: deleteError } = await supabase
     .from("order_items")
@@ -130,12 +121,19 @@ export async function editOrder(
   if (deleteError) throw new Error(deleteError.message);
 
   // Insert new order items
-  const newItems = items.map((item) => ({
-    order_id: orderId,
-    product_id: item.productId,
-    quantity: item.quantity,
-    unit_price: productMap.get(item.productId)!.price,
-  }));
+  const newItems = items.map((item) => {
+    const unitPrice = item.variantId
+      ? (variantMap.get(item.variantId)?.price ??
+        productMap.get(item.productId)!.price)
+      : productMap.get(item.productId)!.price;
+    return {
+      order_id: orderId,
+      product_id: item.productId,
+      variant_id: item.variantId ?? null,
+      quantity: item.quantity,
+      unit_price: unitPrice,
+    };
+  });
 
   const { error: insertError } = await supabase
     .from("order_items")
@@ -144,13 +142,13 @@ export async function editOrder(
   if (insertError) throw new Error(insertError.message);
 
   // Recompute total
-  const newTotal = items.reduce((sum, item) => {
-    return sum + productMap.get(item.productId)!.price * item.quantity;
-  }, 0);
+  const newTotal = newItems.reduce(
+    (sum, item) => sum + item.unit_price * item.quantity,
+    0,
+  );
 
   // If order was completed, reverse old deductions and re-run completion
   if (order.status === "completed") {
-    // Log reversals: insert correcting entries for prior deductions
     const { data: priorLogs } = await supabase
       .from("inventory_logs")
       .select("ingredient_id, change_qty")
@@ -160,14 +158,13 @@ export async function editOrder(
     if (priorLogs && priorLogs.length > 0) {
       const reversals = priorLogs.map((log) => ({
         ingredient_id: log.ingredient_id,
-        change_qty: -log.change_qty, // reverse sign
+        change_qty: -log.change_qty,
         source_type: "manual" as const,
         notes: `Reversal for edit of order ${orderId}`,
       }));
 
       await supabase.from("inventory_logs").insert(reversals);
 
-      // Restore ingredient stock quantities
       for (const log of priorLogs) {
         await supabase.rpc("increment_stock", {
           p_ingredient_id: log.ingredient_id,
@@ -176,7 +173,6 @@ export async function editOrder(
       }
     }
 
-    // Re-run order completion logic for new items
     await supabase.rpc("complete_order", { p_order_id: orderId });
   }
 
@@ -187,7 +183,7 @@ export async function editOrder(
     .eq("id", orderId);
 
   revalidatePath("/queue");
-  revalidatePath("/inventory");
+  revalidatePath("/manage");
 }
 
 export async function cancelOrder(orderId: string): Promise<void> {
@@ -195,7 +191,6 @@ export async function cancelOrder(orderId: string): Promise<void> {
 
   const supabase = createClient();
 
-  // If the order was completed, reverse inventory deductions first
   const { data: order } = await supabase
     .from("orders")
     .select("id, status")
@@ -240,5 +235,5 @@ export async function cancelOrder(orderId: string): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/queue");
-  revalidatePath("/inventory");
+  revalidatePath("/manage");
 }
