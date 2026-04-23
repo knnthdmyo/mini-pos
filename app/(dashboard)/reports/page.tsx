@@ -3,6 +3,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { getReport } from "@/lib/actions/reports";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
+import { TransactionTable } from "@/components/reports/TransactionTable";
+import type { ReportResult } from "@/lib/actions/reports";
 
 type Period = "daily" | "weekly" | "monthly";
 
@@ -12,19 +14,12 @@ const PERIODS: { label: string; value: Period }[] = [
   { label: "This Month", value: "monthly" },
 ];
 
-interface ReportResult {
-  revenue: number;
-  cost: number;
-  profit: number;
-  startDate: string;
-  endDate: string;
-}
-
 export default function ReportsPage() {
   const [period, setPeriod] = useState<Period>("daily");
   const [data, setData] = useState<ReportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleSelect = useCallback(async (p: Period) => {
     setPeriod(p);
@@ -46,10 +41,38 @@ export default function ReportsPage() {
     handleSelect("daily");
   }, [handleSelect]);
 
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      const res = await fetch(`/api/reports/export?period=${period}`);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `report-${period}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   return (
     <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-brand-bg p-4 pb-20">
       <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="text-xl font-bold text-gray-900">Reports</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-900">Reports</h1>
+          <button
+            onClick={handleExport}
+            disabled={isExporting || !data}
+            className="flex items-center gap-1.5 rounded-xl bg-white border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 transition-colors"
+          >
+            {isExporting ? "Exporting…" : "Export .xlsx"}
+          </button>
+        </div>
 
         {/* Period tabs */}
         <div className="flex gap-2">
@@ -81,7 +104,12 @@ export default function ReportsPage() {
           </p>
         )}
 
-        {!isPending && !error && data && <ProfitSummary {...data} />}
+        {!isPending && !error && data && (
+          <>
+            <ProfitSummary {...data} />
+            <TransactionTable transactions={data.transactions} />
+          </>
+        )}
 
         {!isPending && !error && !data && (
           <p className="py-8 text-center text-sm text-gray-400">
