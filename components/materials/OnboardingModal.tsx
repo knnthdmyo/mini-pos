@@ -20,8 +20,8 @@ export default function OnboardingModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-1 text-lg font-bold text-gray-900">
+      <div className="w-full max-w-md rounded-2xl glass-modal p-6 shadow-xl">
+        <h2 className="mb-1 text-lg font-bold text-brand-text">
           Welcome! Add your first materials
         </h2>
         <p className="mb-4 text-sm text-gray-500">

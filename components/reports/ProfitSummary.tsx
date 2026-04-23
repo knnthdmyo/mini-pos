@@ -34,19 +34,19 @@ export function ProfitSummary({
         {start} – {end}
       </p>
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm text-center">
+        <div className="rounded-2xl glass p-4 shadow-sm text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
             Revenue
           </p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
+          <p className="mt-1 text-2xl font-bold text-brand-text">
             {formatPHP(revenue)}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm text-center">
+        <div className="rounded-2xl glass p-4 shadow-sm text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
             Cost
           </p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
+          <p className="mt-1 text-2xl font-bold text-brand-text">
             {formatPHP(cost)}
           </p>
         </div>

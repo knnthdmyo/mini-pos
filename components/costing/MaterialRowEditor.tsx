@@ -67,7 +67,7 @@ export default function MaterialRowEditor({
         <select
           value={row.ingredientId}
           onChange={(e) => handleMaterialChange(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-brand-border px-2 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
         >
           <option value="">Select...</option>
           {materials.map((m) => (
@@ -107,7 +107,7 @@ export default function MaterialRowEditor({
           placeholder="0"
           min="0"
           step="any"
-          className="w-full rounded-lg border border-gray-300 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-brand-border px-2 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
         />
       </div>
 
@@ -117,7 +117,7 @@ export default function MaterialRowEditor({
           type="text"
           value={row.rowTotal > 0 ? `₱${row.rowTotal.toFixed(2)}` : "—"}
           readOnly
-          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 text-sm font-medium text-gray-900"
+          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 text-sm font-medium text-brand-text"
         />
       </div>
 

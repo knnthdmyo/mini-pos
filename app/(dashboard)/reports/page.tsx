@@ -47,7 +47,7 @@ export default function ReportsPage() {
   }, [handleSelect]);
 
   return (
-    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
+    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-brand-bg p-4 pb-20">
       <div className="mx-auto max-w-3xl space-y-6">
         <h1 className="text-xl font-bold text-gray-900">Reports</h1>
 
@@ -61,7 +61,7 @@ export default function ReportsPage() {
               className={[
                 "flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors",
                 period === p.value
-                  ? "bg-indigo-600 text-white shadow"
+                  ? "bg-brand-primary text-white shadow"
                   : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50",
               ].join(" ")}
             >

@@ -104,7 +104,7 @@ export default function MaterialForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Sugar"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
         />
       </div>
 
@@ -115,7 +115,7 @@ export default function MaterialForm({
         <select
           value={unit}
           onChange={(e) => setUnit(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
         >
           {UNITS.map((u) => (
             <option key={u} value={u}>
@@ -137,7 +137,7 @@ export default function MaterialForm({
             placeholder="e.g. 25"
             min="0"
             step="any"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
           />
         </div>
         <div>
@@ -151,14 +151,14 @@ export default function MaterialForm({
             placeholder="e.g. 500"
             min="0"
             step="any"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
           />
         </div>
       </div>
 
-      <div className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
+      <div className="rounded-lg bg-brand-surface/40 px-3 py-2 text-sm">
         <span className="text-gray-500">Cost per unit: </span>
-        <span className="font-semibold text-gray-900">
+        <span className="font-semibold text-brand-text">
           {qty > 0 ? `₱${costPerUnit.toFixed(4)}` : "—"}
         </span>
       </div>
@@ -172,7 +172,7 @@ export default function MaterialForm({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Bought from market"
           rows={2}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
         />
       </div>
 

@@ -54,14 +54,14 @@ export default function ProductsTable({ products }: ProductsTableProps) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Products</h1>
+        <h1 className="text-xl font-bold text-brand-text">Products</h1>
         <Button size="sm" onClick={() => setShowAdd(!showAdd)}>
           {showAdd ? "Cancel" : "Add Product"}
         </Button>
       </div>
 
       {showAdd && (
-        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-6 rounded-2xl glass p-4 shadow-sm">
           <ProductForm
             onSuccess={() => {
               setShowAdd(false);
@@ -76,9 +76,9 @@ export default function ProductsTable({ products }: ProductsTableProps) {
           No products yet. Add your first product above.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl glass shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-brand-border/30 bg-brand-surface/40">
               <tr>
                 <th className="px-4 py-3 font-medium text-gray-700">Name</th>
                 <th className="px-4 py-3 font-medium text-gray-700">Price</th>
@@ -107,7 +107,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                     </td>
                   ) : (
                     <>
-                      <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                      <td className="px-4 py-3 font-medium text-brand-text">{p.name}</td>
                       <td className="px-4 py-3 text-gray-600">₱{Number(p.price).toFixed(2)}</td>
                       <td className="px-4 py-3">
                         <button
@@ -125,7 +125,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                       <td className="flex gap-2 px-4 py-3">
                         <button
                           onClick={() => setEditingId(p.id)}
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                          className="text-sm font-medium text-brand-primary hover:text-brand-primary/80"
                         >
                           Edit
                         </button>

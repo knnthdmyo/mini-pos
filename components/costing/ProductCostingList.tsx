@@ -45,11 +45,11 @@ export default function ProductCostingList({
               className={[
                 "rounded-xl border p-3 text-left transition-colors",
                 selectedProductId === p.id
-                  ? "border-indigo-400 bg-indigo-50"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50",
+                  ? "border-brand-primary/60 bg-brand-primary/10"
+                  : "border-brand-border bg-brand-surface/60 hover:border-brand-border hover:bg-brand-surface/80",
               ].join(" ")}
             >
-              <p className="text-sm font-medium text-gray-900">{p.name}</p>
+              <p className="text-sm font-medium text-brand-text">{p.name}</p>
               <p className="text-xs text-gray-500">₱{p.price.toFixed(2)}</p>
               {hasVariants ? (
                 <div className="mt-1 flex items-center gap-1">
