@@ -6,7 +6,7 @@ import { CartSummary } from "@/components/pos/CartSummary";
 import { PlaceOrderButton } from "@/components/pos/PlaceOrderButton";
 import { Toast, useToast } from "@/components/ui/Toast";
 import { placeOrder } from "@/lib/actions/orders";
-import { usePosStore } from "@/lib/store/pos";
+import { usePosStore } from "@/lib/store/PosStoreProvider";
 import type { CartLine } from "@/lib/store/pos";
 
 interface Product {
@@ -60,7 +60,6 @@ export function POSClient({ products }: POSClientProps) {
       })),
     });
     clearCart();
-    showToast("Order placed!", "success");
     setLoading(true);
 
     try {
@@ -68,6 +67,7 @@ export function POSClient({ products }: POSClientProps) {
         snapshot.map((l) => ({ productId: l.productId, quantity: l.quantity })),
       );
       replaceOrder(tempId, realOrder);
+      showToast("Order placed!", "success");
     } catch (err: unknown) {
       removeOrder(tempId);
       restoreCart(snapshot);

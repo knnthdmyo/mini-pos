@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { POSClient } from "./POSClient";
 import { QueueList } from "@/components/queue/QueueList";
-import { usePosStore } from "@/lib/store/pos";
+import { usePosStore, usePosStoreApi } from "@/lib/store/PosStoreProvider";
 import type { Order } from "@/lib/store/pos";
 
 interface Product {
@@ -30,6 +30,7 @@ export function POSQueueClient({
 }: Props) {
   const { orders, initOrders, addOrder, removeOrder, updateOrders } =
     usePosStore();
+  const storeApi = usePosStoreApi();
   const [activeTab, setActiveTab] = useState<"pos" | "queue">("pos");
 
   // Seed store with server-rendered orders on first mount
@@ -53,7 +54,7 @@ export function POSQueueClient({
             // If the order is already in the store (optimistic or from server
             // action return), the dedup check in addOrder will skip it.
             // Only fetch full data for orders from other devices.
-            const current = usePosStore.getState().orders;
+            const current = storeApi.getState().orders;
             if (current.some((o) => o.id === record.id)) return;
 
             supabase

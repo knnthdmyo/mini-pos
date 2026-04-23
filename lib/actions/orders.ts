@@ -40,6 +40,8 @@ export async function placeOrder(
 
   if (error) throw new Error(error.message);
 
+  revalidatePath("/queue");
+
   return data as PlacedOrder;
 }
 
