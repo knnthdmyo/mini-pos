@@ -1,0 +1,11 @@
+{
+  "ai": "generic",
+  "ai_commands_dir": ".myagent/commands",
+  "ai_skills": false,
+  "branch_numbering": "sequential",
+  "here": false,
+  "offline": true,
+  "preset": null,
+  "script": "sh",
+  "speckit_version": "0.4.4.dev0"
+}

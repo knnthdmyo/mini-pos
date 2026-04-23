@@ -29,9 +29,26 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+Validate the feature against each principle from `.specify/memory/constitution.md`:
+
+- [ ] **I. Speed First** — Does this feature keep order creation under 5 seconds?
+      Does it add zero extra taps to the core POS flow?
+- [ ] **II. Simplicity Over Completeness** — Is this feature essential to the Core
+      Purpose (prevent missed orders / track inventory / daily profit)? Not merely useful?
+- [ ] **III. Accuracy in Inventory & Profit** — If this feature touches inventory,
+      does deduction happen only on order completion? Is costing consistent?
+- [ ] **IV. Human-Error Tolerant** — Are all mutations editable/reversible?
+      Does the feature avoid blocking core operations on bad state?
+- [ ] **V. Single-Device Optimized** — Does this feature function on one tablet
+      without multi-device coordination or real-time sync?
+- [ ] **Scope** — Is this feature in the MVP Included list? (POS, Queue, Inventory,
+      Batch Prep, Reporting, Low Stock Alerts.) If not, flag immediately.
+- [ ] **Data Integrity** — Are all mutations logged? Are inventory deductions
+      traceable to an order or manual adjustment?
+- [ ] **Evolution Rule** — Does this feature satisfy all three evolution conditions?
+      (No POS slowdown, no extra taps, no inventory accuracy regression.)
 
 ## Project Structure
 
@@ -48,6 +65,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -98,7 +116,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
