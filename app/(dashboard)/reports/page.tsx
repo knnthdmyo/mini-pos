@@ -239,7 +239,7 @@ export default function ReportsPage() {
       </div>
       {/* Transactions modal */}
       {showTransactions && reportData && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-start sm:pt-16 justify-center">
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setShowTransactions(false)}
