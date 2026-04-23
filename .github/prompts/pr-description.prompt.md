@@ -16,12 +16,15 @@ git diff origin/master..HEAD --stat
 git diff origin/master..HEAD
 ```
 
-## Step 2 — Fill in the PR template
+## Step 2 — Produce the PR description
 
-Using the diff and commit log above, produce a completed PR description using **exactly** this template structure. Do not omit any section. Replace all placeholder comments with real content.
+Using the diff and commit log above, produce a completed PR description using **exactly** the template structure below.
+
+> **Output format**: Always wrap the entire PR description in a single ` ```markdown ` code block so the developer can copy-paste it directly into GitHub. Do not output anything outside the code block.
 
 ---
 
+```markdown
 ## Summary
 
 <!-- One or two sentences describing what this PR does and why. -->
@@ -53,6 +56,7 @@ Using the diff and commit log above, produce a completed PR description using **
 - [ ] No hardcoded secrets or `.env` values committed
 - [ ] Server actions call `requireAuth()` if they mutate data
 - [ ] `revalidatePath()` called after mutations
+```
 
 ---
 
@@ -62,4 +66,5 @@ Using the diff and commit log above, produce a completed PR description using **
 - The **Summary** should be a plain-English explanation of the intent — not just a list of files changed.
 - The **Changes** list should cover what changed and why, not just filenames.
 - If the diff touches only non-UI files (actions, config, types), mark Screenshots as "No UI changes."
-- Do not include any text outside the template structure.
+- Replace all `<!-- comment -->` placeholders with real content.
+- The entire output must be a single ` ```markdown ` code block. No text before or after it.
