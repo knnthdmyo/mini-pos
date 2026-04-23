@@ -21,10 +21,20 @@ interface PlacedOrder {
   total_price: number;
   created_at: string;
   order_items: PlacedOrderItem[];
+  amount_received: number | null;
+  change_amount: number | null;
+  change_given: boolean;
+}
+
+interface PaymentInfo {
+  amountReceived: number;
+  changeAmount: number;
+  changeGiven: boolean;
 }
 
 export async function placeOrder(
   items: OrderItem[],
+  payment?: PaymentInfo,
 ): Promise<PlacedOrder> {
   await requireAuth();
 
@@ -36,6 +46,9 @@ export async function placeOrder(
 
   const { data, error } = await supabase.rpc("place_order", {
     p_items: items,
+    p_amount_received: payment?.amountReceived ?? null,
+    p_change_amount: payment?.changeAmount ?? null,
+    p_change_given: payment?.changeGiven ?? true,
   });
 
   if (error) throw new Error(error.message);
@@ -160,6 +173,21 @@ export async function editOrder(
 
   revalidatePath("/queue");
   revalidatePath("/inventory");
+}
+
+export async function markChangeGiven(orderId: string): Promise<void> {
+  await requireAuth();
+
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("orders")
+    .update({ change_given: true })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/queue");
 }
 
 export async function cancelOrder(orderId: string): Promise<void> {

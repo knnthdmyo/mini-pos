@@ -20,6 +20,9 @@ export interface Order {
   total_price: number;
   created_at: string;
   order_items: OrderItem[];
+  amount_received?: number | null;
+  change_amount?: number | null;
+  change_given?: boolean;
 }
 
 export interface PosState {
