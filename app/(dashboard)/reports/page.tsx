@@ -1,56 +1,97 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { getReport } from "@/lib/actions/reports";
+import { useState, useEffect, useMemo, useTransition } from "react";
+import {
+  getReport,
+  getChartData,
+  listActiveProducts,
+  deriveDateRange,
+} from "@/lib/actions/reports";
+import type {
+  Metric,
+  DatePreset,
+  Granularity,
+  PeakBasis,
+  DateRange,
+  ChartData,
+  ProductOption,
+  ReportResult,
+} from "@/lib/actions/reports";
+import { ReportFilters } from "@/components/reports/ReportFilters";
+import { SalesOverTimeChart } from "@/components/reports/SalesOverTimeChart";
+import { SalesByProductChart } from "@/components/reports/SalesByProductChart";
+import { PeakTimesChart } from "@/components/reports/PeakTimesChart";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
 import { TransactionTable } from "@/components/reports/TransactionTable";
-import type { ReportResult } from "@/lib/actions/reports";
-
-type Period = "daily" | "weekly" | "monthly";
-
-const PERIODS: { label: string; value: Period }[] = [
-  { label: "Today", value: "daily" },
-  { label: "This Week", value: "weekly" },
-  { label: "This Month", value: "monthly" },
-];
 
 export default function ReportsPage() {
-  const [period, setPeriod] = useState<Period>("daily");
-  const [data, setData] = useState<ReportResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [metric, setMetric] = useState<Metric>("sales");
+  const [datePreset, setDatePreset] = useState<DatePreset>("today");
+  const [customRange, setCustomRange] = useState<DateRange>({
+    start: new Date(),
+    end: new Date(),
+  });
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [granularity, setGranularity] = useState<Granularity>("hourly");
+  const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
 
-  const handleSelect = useCallback(async (p: Period) => {
-    setPeriod(p);
-    setError(null);
-    setIsPending(true);
-    try {
-      const result = await getReport(p);
-      if ("error" in result) {
-        setError(result.error as string);
-      } else {
-        setData(result as ReportResult);
-      }
-    } finally {
-      setIsPending(false);
-    }
+  const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [reportData, setReportData] = useState<ReportResult | null>(null);
+  const [products, setProducts] = useState<ProductOption[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const dateRange = useMemo(
+    () => deriveDateRange(datePreset, customRange),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [datePreset, customRange.start.toISOString(), customRange.end.toISOString()],
+  );
+
+  // Load products for filter chips on mount
+  useEffect(() => {
+    listActiveProducts().then(setProducts).catch(() => {});
   }, []);
 
+  // Re-fetch when filters change
   useEffect(() => {
-    handleSelect("daily");
-  }, [handleSelect]);
+    setError(null);
+    startTransition(() => {
+      Promise.all([
+        getChartData({
+          start: dateRange.start,
+          end: dateRange.end,
+          metric,
+          granularity,
+          peakBasis,
+          productIds: selectedProductIds,
+        }),
+        getReport({
+          start: dateRange.start,
+          end: dateRange.end,
+          productIds: selectedProductIds,
+        }),
+      ])
+        .then(([charts, report]) => {
+          setChartData(charts);
+          setReportData(report);
+        })
+        .catch(() => setError("Failed to load report data. Please try again."));
+    });
+  }, [dateRange, metric, granularity, peakBasis, selectedProductIds]);
 
   async function handleExport() {
     setIsExporting(true);
     try {
-      const res = await fetch(`/api/reports/export?period=${period}`);
+      const preset =
+        datePreset === "custom" ? "today" : datePreset === "yesterday" ? "yesterday" : datePreset === "month" ? "month" : datePreset === "year" ? "year" : "today";
+      const res = await fetch(`/api/reports/export?period=${preset}`);
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `report-${period}.xlsx`;
+      a.download = `report-${preset}-${Date.now()}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -61,59 +102,76 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-brand-bg p-4 pb-20">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <div className="h-[calc(100dvh-4rem)] overflow-y-auto bg-brand-bg p-4 pb-20">
+      <div className="mx-auto max-w-3xl space-y-4">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">Reports</h1>
           <button
             onClick={handleExport}
-            disabled={isExporting || !data}
-            className="flex items-center gap-1.5 rounded-xl bg-white border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            disabled={isExporting || !reportData}
+            className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
           >
             {isExporting ? "Exporting…" : "Export"}
           </button>
         </div>
 
-        {/* Period tabs */}
-        <div className="flex gap-2">
-          {PERIODS.map((p) => (
-            <button
-              key={p.value}
-              onClick={() => handleSelect(p.value)}
-              disabled={isPending}
-              className={[
-                "flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors",
-                period === p.value
-                  ? "bg-brand-primary text-white shadow"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50",
-              ].join(" ")}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        {/* Filters */}
+        <ReportFilters
+          metric={metric}
+          onMetricChange={setMetric}
+          datePreset={datePreset}
+          onDatePresetChange={setDatePreset}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+          granularity={granularity}
+          onGranularityChange={setGranularity}
+          selectedProductIds={selectedProductIds}
+          onProductIdsChange={setSelectedProductIds}
+          products={products}
+        />
 
-        {/* Content */}
-        {isPending && (
-          <p className="text-center text-sm text-gray-400">Loading…</p>
-        )}
-
-        {error && !isPending && (
+        {/* Error */}
+        {error && (
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </p>
         )}
 
-        {!isPending && !error && data && (
+        {/* Chart 1 */}
+        <SalesOverTimeChart
+          data={chartData?.salesOverTime ?? []}
+          metric={metric}
+          loading={isPending}
+        />
+
+        {/* Chart 2 */}
+        <SalesByProductChart
+          data={chartData?.salesByProduct ?? []}
+          metric={metric}
+          loading={isPending}
+        />
+
+        {/* Chart 3 */}
+        <PeakTimesChart
+          data={chartData?.peakTimes ?? []}
+          metric={metric}
+          peakBasis={peakBasis}
+          onPeakBasisChange={setPeakBasis}
+          loading={isPending}
+        />
+
+        {/* Existing summary + transactions */}
+        {reportData && (
           <>
-            <ProfitSummary {...data} />
-            <TransactionTable transactions={data.transactions} />
+            <ProfitSummary {...reportData} />
+            <TransactionTable transactions={reportData.transactions} />
           </>
         )}
 
-        {!isPending && !error && !data && (
+        {!isPending && !error && !reportData && (
           <p className="py-8 text-center text-sm text-gray-400">
-            Select a period above to load the report.
+            Loading report…
           </p>
         )}
       </div>

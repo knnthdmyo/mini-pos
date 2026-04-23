@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { requireAuth } from "@/lib/supabase/server";
-import { getReport, type Period } from "@/lib/actions/reports";
+import { getReport, deriveDateRange } from "@/lib/actions/reports";
+import type { DatePreset } from "@/lib/actions/reports";
 
 export async function GET(req: NextRequest) {
-  // Auth guard
   try {
     await requireAuth();
   } catch {
@@ -12,13 +12,15 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = req.nextUrl;
-  const raw = searchParams.get("period") ?? "daily";
-  const validPeriods: Period[] = ["daily", "weekly", "monthly"];
-  const period: Period = validPeriods.includes(raw as Period)
-    ? (raw as Period)
-    : "daily";
+  const raw = searchParams.get("period") ?? "today";
+  const validPresets: DatePreset[] = ["today", "yesterday", "month", "year"];
+  const preset: DatePreset = validPresets.includes(raw as DatePreset)
+    ? (raw as DatePreset)
+    : "today";
 
-  const report = await getReport(period);
+  const today = new Date();
+  const { start, end } = deriveDateRange(preset, { start: today, end: today });
+  const report = await getReport({ start, end });
 
   // ── Sheet 1: Orders ────────────────────────────────────────────────────────
   const ordersRows = report.transactions.map((tx) => ({
@@ -49,11 +51,8 @@ export async function GET(req: NextRequest) {
 
   // ── Sheet 3: Summary ───────────────────────────────────────────────────────
   const summaryRows = [
-    { Metric: "Period", Value: period },
-    {
-      Metric: "From",
-      Value: new Date(report.startDate).toLocaleString("en-PH"),
-    },
+    { Metric: "Period", Value: preset },
+    { Metric: "From", Value: new Date(report.startDate).toLocaleString("en-PH") },
     { Metric: "To", Value: new Date(report.endDate).toLocaleString("en-PH") },
     { Metric: "Revenue (₱)", Value: report.revenue },
     { Metric: "Cost (₱)", Value: report.cost },
@@ -62,26 +61,17 @@ export async function GET(req: NextRequest) {
   ];
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.json_to_sheet(ordersRows),
-    "Orders",
-  );
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ordersRows), "Orders");
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(costRows), "Costs");
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.json_to_sheet(summaryRows),
-    "Summary",
-  );
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), "Summary");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
   return new NextResponse(buffer, {
     status: 200,
     headers: {
-      "Content-Type":
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="report-${period}-${Date.now()}.xlsx"`,
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="report-${preset}-${Date.now()}.xlsx"`,
     },
   });
 }
