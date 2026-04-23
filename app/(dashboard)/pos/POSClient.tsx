@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ProductGrid } from "@/components/pos/ProductGrid";
 import { CartSummary } from "@/components/pos/CartSummary";
 import { PlaceOrderButton } from "@/components/pos/PlaceOrderButton";
+import { Toast, useToast } from "@/components/ui/Toast";
 import { placeOrder } from "@/lib/actions/orders";
 import { usePosStore } from "@/lib/store/pos";
 import type { CartLine } from "@/lib/store/pos";
@@ -32,25 +33,17 @@ export function POSClient({ products }: POSClientProps) {
     removeOrder,
   } = usePosStore();
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const { toast, showToast, dismiss } = useToast();
 
   async function handlePlaceOrder() {
     if (cart.length === 0) {
-      setFeedback({
-        type: "error",
-        message: "Add at least one item before placing.",
-      });
+      showToast("Add at least one item before placing.", "error");
       return;
     }
 
-    // Snapshot cart before clearing for potential rollback
     const snapshot: CartLine[] = cart.map((l) => ({ ...l }));
     const tempId = `temp-${Date.now()}`;
 
-    // Optimistic: add order to queue and clear cart immediately
     addOrder({
       id: tempId,
       status: "placed",
@@ -67,7 +60,7 @@ export function POSClient({ products }: POSClientProps) {
       })),
     });
     clearCart();
-    setFeedback({ type: "success", message: "Order placed!" });
+    showToast("Order placed!", "success");
     setLoading(true);
 
     try {
@@ -76,13 +69,12 @@ export function POSClient({ products }: POSClientProps) {
       );
       replaceOrder(tempId, realOrder);
     } catch (err: unknown) {
-      // Rollback: remove optimistic order and restore cart
       removeOrder(tempId);
       restoreCart(snapshot);
-      setFeedback({
-        type: "error",
-        message: err instanceof Error ? err.message : "Failed to place order",
-      });
+      showToast(
+        err instanceof Error ? err.message : "Failed to place order",
+        "error",
+      );
     } finally {
       setLoading(false);
     }
@@ -94,19 +86,6 @@ export function POSClient({ products }: POSClientProps) {
         POS
       </h1>
       <div className="flex-1 overflow-y-auto">
-        {feedback && (
-          <div
-            className={[
-              "mb-4 rounded-xl px-4 py-3 text-sm font-medium",
-              feedback.type === "success"
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-700",
-            ].join(" ")}
-          >
-            {feedback.message}
-          </div>
-        )}
-
         <ProductGrid products={products} onAdd={(p) => addToCart(p)} />
         <CartSummary
           lines={cart}
@@ -124,6 +103,10 @@ export function POSClient({ products }: POSClientProps) {
           onCancel={clearCart}
         />
       </div>
+
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onDismiss={dismiss} />
+      )}
     </div>
   );
 }
