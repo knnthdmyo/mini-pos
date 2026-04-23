@@ -170,9 +170,8 @@ export default function ReportsPage() {
       </div>
 
       <WeeklyPerformanceChart
-        data={chartData?.weeklyPerformance ?? []}
         metric={metric}
-        loading={isPending}
+        peakBasis={peakBasis}
       />
 
 

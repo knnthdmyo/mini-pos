@@ -24,7 +24,6 @@ export interface ChartPoint {
 export interface ChartData {
   salesByProduct: ChartPoint[];
   peakTimes: ChartPoint[]; // 10am–10pm (13 entries)
-  weeklyPerformance: ChartPoint[]; // daily buckets (Mon–Sun)
 }
 
 export interface ProductOption {
@@ -145,10 +144,6 @@ export async function getChartData(filters: {
     value: 0,
   }));
 
-  // Weekly performance: aggregate by day of week (Mon–Sun)
-  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const dayOfWeekArr = DAY_NAMES.map((label) => ({ label, value: 0 }));
-
   for (const o of orders) {
     const completedDate = new Date(o.completed_at as string);
     const basisDate = new Date(
@@ -185,9 +180,6 @@ export async function getChartData(filters: {
       // Peak times
       peakArr[hour].value += itemValue;
 
-      // Weekly performance (day of week: 0=Mon … 6=Sun)
-      const dow = (completedDate.getDay() + 6) % 7;
-      dayOfWeekArr[dow].value += itemValue;
     }
   }
 
@@ -199,19 +191,94 @@ export async function getChartData(filters: {
       value: Math.round(value * 100) / 100,
     }));
 
-  const weeklyPerformance: ChartPoint[] = dayOfWeekArr.map((d) => ({
-    label: d.label,
-    value: Math.round(d.value * 100) / 100,
-  }));
-
   return {
     salesByProduct,
     peakTimes: peakArr.slice(10, 23).map((p) => ({
       ...p,
       value: Math.round(p.value * 100) / 100,
     })),
-    weeklyPerformance,
   };
+}
+
+// ── getWeeklyPerformance ──────────────────────────────────────────────────────
+export async function getWeeklyPerformance(filters: {
+  weekStart: Date;
+  metric: Metric;
+  peakBasis: PeakBasis;
+}): Promise<ChartPoint[]> {
+  await requireAuth();
+  const { weekStart, metric, peakBasis } = filters;
+  const supabase = createClient();
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+
+  const basisCol = peakBasis === "created_at" ? "created_at" : "completed_at";
+
+  const { data: ordersData, error } = await supabase
+    .from("orders")
+    .select(
+      `id, completed_at, created_at,
+       order_items(quantity, unit_price, product_id,
+         products(id, name))`,
+    )
+    .eq("status", "completed")
+    .gte(basisCol, weekStart.toISOString())
+    .lt(basisCol, weekEnd.toISOString());
+
+  if (error) throw new Error(error.message);
+  const orders = ordersData ?? [];
+
+  // Cost lookup
+  const allPids = new Set<string>();
+  for (const o of orders) {
+    for (const oi of (o.order_items ?? []) as unknown as Array<{ product_id: string }>) {
+      if (oi.product_id) allPids.add(oi.product_id);
+    }
+  }
+  const costMap = new Map<string, number>();
+  if (allPids.size > 0) {
+    const { data: costData } = await supabase
+      .from("product_costings")
+      .select("product_id, cost_per_item")
+      .in("product_id", Array.from(allPids));
+    for (const c of costData ?? []) {
+      costMap.set(c.product_id, Number(c.cost_per_item));
+    }
+  }
+
+  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayArr = DAY_NAMES.map((label) => ({ label, value: 0 }));
+
+  for (const o of orders) {
+    const basisDate = new Date(
+      peakBasis === "created_at"
+        ? (o.created_at as string)
+        : (o.completed_at as string),
+    );
+    const dow = (basisDate.getDay() + 6) % 7; // 0=Mon
+
+    for (const oi of (o.order_items ?? []) as unknown as Array<{
+      product_id: string;
+      quantity: number;
+      unit_price: number;
+    }>) {
+      const qty = Number(oi.quantity);
+      const price = Number(oi.unit_price);
+      const cost = costMap.get(oi.product_id) ?? 0;
+      let val: number;
+      if (metric === "quantity") val = qty;
+      else if (metric === "profit") val = (price - cost) * qty;
+      else val = price * qty;
+
+      dayArr[dow].value += val;
+    }
+  }
+
+  return dayArr.map((d) => ({
+    label: d.label,
+    value: Math.round(d.value * 100) / 100,
+  }));
 }
 
 // ── getReport (updated signature) ────────────────────────────────────────────
