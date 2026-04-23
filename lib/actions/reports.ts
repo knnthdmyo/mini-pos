@@ -23,7 +23,7 @@ export interface ChartPoint {
 
 export interface ChartData {
   salesByProduct: ChartPoint[];
-  peakTimes: ChartPoint[]; // always 24 entries
+  peakTimes: ChartPoint[]; // 10am–10pm (13 entries)
 }
 
 export interface ProductOption {
@@ -192,7 +192,7 @@ export async function getChartData(filters: {
 
   return {
     salesByProduct,
-    peakTimes: peakArr.map((p) => ({
+    peakTimes: peakArr.slice(10, 23).map((p) => ({
       ...p,
       value: Math.round(p.value * 100) / 100,
     })),
