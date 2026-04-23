@@ -13,7 +13,11 @@ interface Product {
   price: number;
 }
 
-interface ProductWithStock extends Product {
+interface ProductWithStock {
+  id: string;
+  variantId: string | null;
+  name: string;
+  price: number;
   servingsLeft: number | null;
 }
 
@@ -51,9 +55,6 @@ export function POSQueueClient({
           const record = payload.new as Order & { status: string };
 
           if (payload.eventType === "INSERT" && record.status === "placed") {
-            // If the order is already in the store (optimistic or from server
-            // action return), the dedup check in addOrder will skip it.
-            // Only fetch full data for orders from other devices.
             const current = storeApi.getState().orders;
             if (current.some((o) => o.id === record.id)) return;
 
