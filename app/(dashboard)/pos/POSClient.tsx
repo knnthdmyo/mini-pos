@@ -4,120 +4,105 @@ import { useState } from "react";
 import { ProductGrid } from "@/components/pos/ProductGrid";
 import { CartSummary } from "@/components/pos/CartSummary";
 import { PlaceOrderButton } from "@/components/pos/PlaceOrderButton";
+import { Toast, useToast } from "@/components/ui/Toast";
 import { placeOrder } from "@/lib/actions/orders";
+import { usePosStore } from "@/lib/store/PosStoreProvider";
+import type { CartLine } from "@/lib/store/pos";
 
 interface Product {
   id: string;
+  variantId?: string | null;
   name: string;
   price: number;
   servingsLeft: number | null;
 }
 
-interface CartLine {
-  productId: string;
-  name: string;
-  unitPrice: number;
-  quantity: number;
-}
-
 interface POSClientProps {
   products: Product[];
-  onOrderPlaced?: (orderId: string) => Promise<void>;
 }
 
-export function POSClient({ products, onOrderPlaced }: POSClientProps) {
-  const [cart, setCart] = useState<CartLine[]>([]);
+export function POSClient({ products }: POSClientProps) {
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    setCartQuantity,
+    clearCart,
+    restoreCart,
+    addOrder,
+    replaceOrder,
+    removeOrder,
+  } = usePosStore();
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const existing = prev.find((l) => l.productId === product.id);
-      if (existing) {
-        return prev.map((l) =>
-          l.productId === product.id ? { ...l, quantity: l.quantity + 1 } : l,
-        );
-      }
-      return [
-        ...prev,
-        {
-          productId: product.id,
-          name: product.name,
-          unitPrice: product.price,
-          quantity: 1,
-        },
-      ];
-    });
-    setFeedback(null);
-  }
-
-  function removeFromCart(productId: string) {
-    setCart((prev) => prev.filter((l) => l.productId !== productId));
-  }
-
-  function setCartQuantity(productId: string, quantity: number) {
-    setCart((prev) =>
-      prev.map((l) => (l.productId === productId ? { ...l, quantity } : l)),
-    );
-  }
-
-  function clearCart() {
-    setCart([]);
-    setFeedback(null);
-  }
+  const { toast, showToast, dismiss } = useToast();
 
   async function handlePlaceOrder() {
     if (cart.length === 0) {
-      setFeedback({
-        type: "error",
-        message: "Add at least one item before placing.",
-      });
+      showToast("Add at least one item before placing.", "error");
       return;
     }
 
+    const snapshot: CartLine[] = cart.map((l) => ({ ...l }));
+    const tempId = `temp-${Date.now()}`;
+
+    addOrder({
+      id: tempId,
+      status: "placed",
+      total_price: snapshot.reduce(
+        (sum, l) => sum + l.unitPrice * l.quantity,
+        0,
+      ),
+      created_at: new Date().toISOString(),
+      order_items: snapshot.map((l) => ({
+        product_id: l.productId,
+        variant_id: l.variantId,
+        quantity: l.quantity,
+        unit_price: l.unitPrice,
+        products: { name: l.name },
+      })),
+    });
+    clearCart();
     setLoading(true);
-    setFeedback(null);
 
     try {
-      const result = await placeOrder(
-        cart.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+      const realOrder = await placeOrder(
+        snapshot.map((l) => ({
+          productId: l.productId,
+          variantId: l.variantId,
+          quantity: l.quantity,
+        })),
       );
-      setCart([]);
-      setFeedback({ type: "success", message: "Order placed!" });
-      await onOrderPlaced?.(result.orderId);
+      replaceOrder(tempId, realOrder);
+      showToast("Order placed!", "success");
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to place order";
-      setFeedback({ type: "error", message });
+      removeOrder(tempId);
+      restoreCart(snapshot);
+      showToast(
+        err instanceof Error ? err.message : "Failed to place order",
+        "error",
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex h-full flex-col p-4 pb-0">
-      {/* Scrollable content */}
+    <div className="flex h-full flex-col bg-gray-50 p-4 pb-0">
       <h1 className="mb-4 text-xl font-bold text-gray-900 hidden md:block">
         POS
       </h1>
       <div className="flex-1 overflow-y-auto">
-        {feedback && (
-          <div
-            className={[
-              "mb-4 rounded-xl px-4 py-3 text-sm font-medium",
-              feedback.type === "success"
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-700",
-            ].join(" ")}
-          >
-            {feedback.message}
-          </div>
-        )}
-
-        <ProductGrid products={products} onAdd={addToCart} />
+        <ProductGrid
+          products={products}
+          onAdd={(p) =>
+            addToCart({
+              id: p.id,
+              variantId: p.variantId,
+              name: p.name,
+              price: p.price,
+            })
+          }
+        />
         <CartSummary
           lines={cart}
           onSetQuantity={setCartQuantity}
@@ -126,7 +111,6 @@ export function POSClient({ products, onOrderPlaced }: POSClientProps) {
         />
       </div>
 
-      {/* Fixed action bar */}
       <div className="shrink-0 border-t border-gray-200 bg-white p-4">
         <PlaceOrderButton
           isEmpty={cart.length === 0}
@@ -135,6 +119,10 @@ export function POSClient({ products, onOrderPlaced }: POSClientProps) {
           onCancel={clearCart}
         />
       </div>
+
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onDismiss={dismiss} />
+      )}
     </div>
   );
 }

@@ -1,13 +1,25 @@
 -- 009_recipes_quantity_required_default.sql
 -- The remote recipes table has a legacy `quantity_required` NOT NULL column.
--- Give it a default so application inserts (which use quantity_per_unit) don't fail.
--- Also backfill quantity_per_unit from quantity_required for any existing rows.
+-- Add it to local schema if missing, give it a default, then backfill.
 
-alter table public.recipes
-  alter column quantity_required set default 0;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'recipes'
+      AND column_name = 'quantity_required'
+  ) THEN
+    ALTER TABLE public.recipes
+      ADD COLUMN quantity_required numeric(12,4) NOT NULL DEFAULT 0;
+  END IF;
+END
+$$;
 
--- Backfill quantity_per_unit for any rows that still have 0 (default we set)
--- where quantity_required has the real value.
-update public.recipes
-set quantity_per_unit = quantity_required
-where quantity_per_unit = 0 and quantity_required != 0;
+ALTER TABLE public.recipes
+  ALTER COLUMN quantity_required SET DEFAULT 0;
+
+-- Backfill quantity_per_unit from quantity_required for any existing rows
+UPDATE public.recipes
+SET quantity_per_unit = quantity_required
+WHERE quantity_per_unit = 0 AND quantity_required != 0;

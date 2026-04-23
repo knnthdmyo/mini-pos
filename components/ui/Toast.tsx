@@ -12,7 +12,7 @@ export function Toast({ message, type = "error", onDismiss }: ToastProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    timerRef.current = setTimeout(onDismiss, 4000);
+    timerRef.current = setTimeout(onDismiss, 3000);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
@@ -22,7 +22,7 @@ export function Toast({ message, type = "error", onDismiss }: ToastProps) {
     <div
       role="alert"
       className={[
-        "fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg",
+        "fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg",
         type === "error" ? "bg-red-600 text-white" : "bg-green-600 text-white",
       ].join(" ")}
     >
