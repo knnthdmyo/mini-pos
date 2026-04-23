@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { OrderCard } from "./OrderCard";
 import { EditOrderModal } from "./EditOrderModal";
 
@@ -36,6 +37,26 @@ export function QueueList({
 }: QueueListProps) {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
+  async function handleSaved() {
+    if (!editingOrder) return;
+    const orderId = editingOrder.id;
+    setEditingOrder(null);
+
+    // Re-fetch the updated order from the database
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("orders")
+      .select("*, order_items(*, products(name))")
+      .eq("id", orderId)
+      .single();
+
+    if (data) {
+      onOrdersChange((prev) =>
+        prev.map((o) => (o.id === orderId ? (data as Order) : o)),
+      );
+    }
+  }
+
   if (orders.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 text-sm text-gray-400">
@@ -63,17 +84,7 @@ export function QueueList({
           order={editingOrder}
           products={products}
           onClose={() => setEditingOrder(null)}
-          onSaved={() => {
-            setEditingOrder(null);
-            // Refresh edited order in parent state
-            onOrdersChange((prev) =>
-              prev.map((o) =>
-                o.id === editingOrder.id
-                  ? { ...o, order_items: editingOrder.order_items }
-                  : o,
-              ),
-            );
-          }}
+          onSaved={handleSaved}
         />
       )}
     </>
