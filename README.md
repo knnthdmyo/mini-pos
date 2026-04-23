@@ -14,6 +14,7 @@ A mobile-friendly point-of-sale and inventory management system for small food b
 
 - [Next.js 14](https://nextjs.org/) (App Router, Server Actions)
 - [Supabase](https://supabase.com/) (Postgres, Auth, Realtime)
+- [Zustand](https://zustand-demo.pmnd.rs/) — lightweight client-side state (POS cart & order queue)
 - [Tailwind CSS](https://tailwindcss.com/)
 - TypeScript
 - [SpecKit](https://github.com/speckit-dev/speckit) — spec-first development workflow
@@ -69,7 +70,7 @@ This project was built using [SpecKit](https://github.com/speckit-dev/speckit), 
 
 3. **Run database migrations**
 
-   Apply the SQL files in `supabase/migrations/` to your Supabase project in order (001 → 017) via the Supabase SQL editor or CLI.
+   Apply the SQL files in `supabase/migrations/` to your Supabase project in order (001 → 018) via the Supabase SQL editor or CLI.
 
 4. **Start the development server**
 
@@ -95,10 +96,63 @@ components/
   ui/             # Badge, Button, Toast
 lib/
   actions/        # Server Actions: auth, orders, inventory, batch, reports
+  store/          # Zustand stores + React providers
   supabase/       # Supabase client helpers (browser + server)
+scripts/          # Dev/debug utility scripts
+specs/            # SpecKit spec documents
 supabase/
-  migrations/     # SQL migration files
-  functions/      # Edge Functions (low-stock alert)
+  migrations/     # SQL migration files (001–018)
+  functions/      # Supabase Edge Functions
+```
+
+## State Management
+
+Client-side state is managed with [Zustand](https://zustand-demo.pmnd.rs/) using a vanilla store + React context provider pattern:
+
+| File                             | Purpose                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `lib/store/pos.ts`               | Vanilla Zustand store — cart lines, order list, and all mutators      |
+| `lib/store/PosStoreProvider.tsx` | React context provider; creates one store instance per component tree |
+
+### Usage
+
+Wrap the POS page (or any subtree) with `<PosStoreProvider>`, then subscribe to slices with the `usePosStore` hook:
+
+```tsx
+import { usePosStore } from "@/lib/store/PosStoreProvider";
+
+const cart = usePosStore((s) => s.cart);
+const addToCart = usePosStore((s) => s.addToCart);
+```
+
+For non-rendering access (inside effects/callbacks), use `usePosStoreApi()` to get the raw store and call `.getState()` or `.setState()` directly.
+
+## Scripts
+
+Utility scripts for development and debugging live in `scripts/`:
+
+| Script                  | Purpose                                 |
+| ----------------------- | --------------------------------------- |
+| `check-columns.js`      | Verify expected columns exist on tables |
+| `check-schema.js`       | Validate overall DB schema              |
+| `list-columns.js`       | List all columns for a given table      |
+| `probe-enum.js`         | Inspect enum types in the database      |
+| `reload-schema.js`      | Reload PostgREST schema cache           |
+| `seed-user.js`          | Create a test user for development      |
+| `verify-order-items.js` | Verify order_items table integrity      |
+| `verify-orders.js`      | Verify orders table integrity           |
+
+## Key Conventions
+
+- **Server Actions** — all writes go through `lib/actions/`; every action calls `requireAuth()` first
+- **Realtime** — Supabase Realtime subscriptions live in Client Components only
+- **Styling** — Tailwind utility classes only; mobile-first; scrollable pages use `pb-20`
+- **Migrations** — one file per schema change, never edit existing migrations
+- **Commits** — [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `chore`, etc.)
+
+See [`docs/best-practices.md`](docs/best-practices.md) and [`docs/commit-conventions.md`](docs/commit-conventions.md) for full guidelines.
+functions/ # Edge Functions (low-stock alert)
+
 ```
 
 ## Scripts
@@ -109,3 +163,4 @@ supabase/
 | `npm run build` | Build for production     |
 | `npm start`     | Start production server  |
 | `npm run lint`  | Run ESLint               |
+```
