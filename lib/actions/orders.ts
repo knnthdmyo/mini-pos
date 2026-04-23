@@ -268,3 +268,30 @@ export async function markChangeGiven(orderId: string): Promise<void> {
   revalidatePath("/pos");
   revalidatePath("/queue");
 }
+
+export async function markOrderPaid(
+  orderId: string,
+  payment: {
+    amountReceived: number;
+    changeAmount: number;
+    changeGiven: boolean;
+  },
+): Promise<void> {
+  await requireAuth();
+
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      amount_received: payment.amountReceived,
+      change_amount: payment.changeAmount,
+      change_given: payment.changeGiven,
+    })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/pos");
+  revalidatePath("/queue");
+}

@@ -9,6 +9,7 @@ export interface CartLine {
 }
 
 export interface OrderItem {
+  id?: string;
   product_id: string;
   variant_id?: string | null;
   quantity: number;

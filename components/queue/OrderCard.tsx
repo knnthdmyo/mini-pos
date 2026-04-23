@@ -5,14 +5,16 @@ import {
   completeOrder,
   cancelOrder,
   markChangeGiven,
+  markOrderPaid,
 } from "@/lib/actions/orders";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Toast, useToast } from "@/components/ui/Toast";
 
 interface OrderItem {
-  id: string;
+  id?: string;
   product_id: string;
+  variant_id?: string | null;
   quantity: number;
   unit_price: number;
   products: { name: string };
@@ -69,13 +71,21 @@ export function OrderCard({
   const [markingGiven, setMarkingGiven] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [changeConfirmOpen, setChangeConfirmOpen] = useState(false);
+  const [paymentCollectOpen, setPaymentCollectOpen] = useState(false);
+  const [collectInput, setCollectInput] = useState("");
   const { toast, showToast, dismiss } = useToast();
   const elapsed = useElapsed(order.created_at);
 
+  const isUnpaid = (order.amount_received ?? 0) === 0;
   const hasUnsettledChange =
-    (order.change_amount ?? 0) > 0 && order.change_given === false;
+    !isUnpaid && (order.change_amount ?? 0) > 0 && order.change_given === false;
 
   async function handleComplete() {
+    if (isUnpaid) {
+      setCollectInput("");
+      setPaymentCollectOpen(true);
+      return;
+    }
     if (hasUnsettledChange) {
       setChangeConfirmOpen(true);
       return;
@@ -136,6 +146,30 @@ export function OrderCard({
     }
   }
 
+  async function handleCollectAndComplete() {
+    const received = parseFloat(collectInput) || 0;
+    if (received < order.total_price) return;
+    setCompleting(true);
+    try {
+      const change = received - order.total_price;
+      await markOrderPaid(order.id, {
+        amountReceived: received,
+        changeAmount: change,
+        changeGiven: change === 0,
+      });
+      await completeOrder(order.id);
+      onComplete(order.id);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to complete order",
+        "error",
+      );
+    } finally {
+      setCompleting(false);
+      setPaymentCollectOpen(false);
+    }
+  }
+
   async function handleConfirmCancel() {
     setCancelling(true);
     try {
@@ -157,6 +191,9 @@ export function OrderCard({
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">{elapsed}</span>
           <div className="flex items-center gap-1.5">
+            {isUnpaid && (
+              <Badge variant="warning">Unpaid</Badge>
+            )}
             {hasUnsettledChange && (
               <Badge variant="warning">
                 Change owed: ₱{(order.change_amount ?? 0).toFixed(2)}
@@ -170,9 +207,9 @@ export function OrderCard({
         </div>
 
         <ul className="space-y-1">
-          {order.order_items.map((item) => (
+          {order.order_items.map((item, idx) => (
             <li
-              key={item.id}
+              key={item.id ?? `${item.product_id}-${item.variant_id ?? idx}`}
               className="flex justify-between text-sm text-gray-700"
             >
               <span>
@@ -290,6 +327,89 @@ export function OrderCard({
                 variant="ghost"
                 size="sm"
                 onClick={() => setChangeConfirmOpen(false)}
+                className="w-full"
+              >
+                Go back
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentCollectOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              Collect payment
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Order total:{" "}
+              <span className="font-semibold text-gray-900">
+                ₱{order.total_price.toFixed(2)}
+              </span>
+            </p>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Amount received
+            </label>
+            <input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              value={collectInput}
+              onChange={(e) => setCollectInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCollectAndComplete();
+              }}
+              placeholder="0.00"
+              autoFocus
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-semibold tabular-nums focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            />
+
+            {collectInput.trim() !== "" && (() => {
+              const recv = parseFloat(collectInput) || 0;
+              const ch = recv - order.total_price;
+              return (
+                <div className="mt-3 rounded-xl bg-gray-50 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Change</span>
+                    <span
+                      className={[
+                        "text-lg font-bold tabular-nums",
+                        ch >= 0 ? "text-green-600" : "text-red-600",
+                      ].join(" ")}
+                    >
+                      ₱{ch.toFixed(2)}
+                    </span>
+                  </div>
+                  {ch < 0 && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Amount is less than the total
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div className="mt-5 flex flex-col gap-2">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleCollectAndComplete}
+                disabled={
+                  completing ||
+                  (parseFloat(collectInput) || 0) < order.total_price ||
+                  collectInput.trim() === ""
+                }
+                className="w-full"
+              >
+                {completing ? "Processing…" : "Collect & complete"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPaymentCollectOpen(false)}
                 className="w-full"
               >
                 Go back

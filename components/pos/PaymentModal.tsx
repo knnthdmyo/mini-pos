@@ -10,10 +10,11 @@ interface PaymentModalProps {
     changeAmount: number;
     changeGiven: boolean;
   }) => void;
+  allowPayLater?: boolean;
   onCancel: () => void;
 }
 
-export function PaymentModal({ total, onConfirm, onCancel }: PaymentModalProps) {
+export function PaymentModal({ total, onConfirm, onCancel, allowPayLater = true }: PaymentModalProps) {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +40,14 @@ export function PaymentModal({ total, onConfirm, onCancel }: PaymentModalProps) 
     onConfirm({
       amountReceived,
       changeAmount: change,
+      changeGiven: false,
+    });
+  }
+
+  function handlePayLater() {
+    onConfirm({
+      amountReceived: 0,
+      changeAmount: 0,
       changeGiven: false,
     });
   }
@@ -122,6 +131,16 @@ export function PaymentModal({ total, onConfirm, onCancel }: PaymentModalProps) 
                 Give change later
               </Button>
             </>
+          )}
+          {allowPayLater && (
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={handlePayLater}
+              className="w-full"
+            >
+              Pay later
+            </Button>
           )}
           <Button
             variant="ghost"
