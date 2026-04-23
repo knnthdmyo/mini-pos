@@ -19,8 +19,8 @@
 
 **Purpose**: Database migration, storage bucket, and project scaffolding
 
-- [ ] T001 Create database migration for `store_settings` table with RLS policies and `updated_at` trigger in `supabase/migrations/018_store_settings.sql` — include `theme` column with `DEFAULT 'light'`
-- [ ] T002 [P] Create Supabase Storage bucket `store-banners` (public, allowed MIME: image/jpeg, image/png, image/webp, max 2 MB) with RLS policies restricting writes to `{user_id}/` folder — via Supabase Dashboard or CLI per `quickstart.md`
+- [x] T001 Create database migration for `store_settings` table with RLS policies and `updated_at` trigger in `supabase/migrations/018_store_settings.sql` — include `theme` column with `DEFAULT 'light'`
+- [x] T002 [P] Create Supabase Storage bucket `store-banners` (public, allowed MIME: image/jpeg, image/png, image/webp, max 2 MB) with RLS policies restricting writes to `{user_id}/` folder — via Supabase Dashboard or CLI per `quickstart.md` _(manual step — must be done via Dashboard)_
 
 ---
 
@@ -30,12 +30,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Add CSS custom properties for `light`, `dark`, and `warm` theme presets in `app/globals.css` under `@layer base`, scoped to `[data-theme="light"]`, `[data-theme="dark"]`, `[data-theme="warm"]` selectors — define `--brand-bg`, `--brand-primary`, `--brand-accent`, `--brand-text`, `--brand-surface` etc.
-- [ ] T004 [P] Extend `tailwind.config.ts` to add `brand` color references using CSS custom properties (`bg: 'var(--brand-bg)'`, `primary: 'var(--brand-primary)'`, etc.) under `theme.extend.colors.brand`
-- [ ] T005 [P] Create theme preset definitions with display names and color mappings in `lib/themes.ts` — export `THEME_PRESETS` array and `ThemePreset` type (`'light' | 'dark' | 'warm'`)
-- [ ] T006 [P] Implement `getStoreSettings` server action in `lib/actions/store.ts` — `requireAuth()`, query `store_settings` by `user_id`, return `StoreSettings | null` per contract
-- [ ] T007 [P] Create `StoreSettingsProvider` React context in `components/store/StoreSettingsProvider.tsx` — provide `storeName`, `bannerUrl`, `theme` to all dashboard children, with `useStoreSettings()` hook
-- [ ] T008 Modify `app/layout.tsx` to call `getStoreSettings()` server-side and set `data-theme` on the `<html>` element directly — default to `"light"` if no settings exist. This is the ONLY place theme is applied to the DOM (depends on T006)
+- [x] T003 [P] Add CSS custom properties for `light`, `dark`, and `warm` theme presets in `app/globals.css` under `@layer base`, scoped to `[data-theme="light"]`, `[data-theme="dark"]`, `[data-theme="warm"]` selectors — define `--brand-bg`, `--brand-primary`, `--brand-accent`, `--brand-text`, `--brand-surface` etc.
+- [x] T004 [P] Extend `tailwind.config.ts` to add `brand` color references using CSS custom properties (`bg: 'var(--brand-bg)'`, `primary: 'var(--brand-primary)'`, etc.) under `theme.extend.colors.brand`
+- [x] T005 [P] Create theme preset definitions with display names and color mappings in `lib/themes.ts` — export `THEME_PRESETS` array and `ThemePreset` type (`'light' | 'dark' | 'warm'`)
+- [x] T006 [P] Implement `getStoreSettings` server action in `lib/actions/store.ts` — `requireAuth()`, query `store_settings` by `user_id`, return `StoreSettings | null` per contract
+- [x] T007 [P] Create `StoreSettingsProvider` React context in `components/store/StoreSettingsProvider.tsx` — provide `storeName`, `bannerUrl`, `theme` to all dashboard children, with `useStoreSettings()` hook
+- [x] T008 Modify `app/layout.tsx` to call `getStoreSettings()` server-side and set `data-theme` on the `<html>` element directly — default to `"light"` if no settings exist. This is the ONLY place theme is applied to the DOM (depends on T006)
 
 **Checkpoint**: Foundation ready — theme CSS custom properties resolve, brand colors available in Tailwind, settings context exists, `getStoreSettings` action available
 
@@ -49,13 +49,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Create `ImageUpload` client component in `components/ui/ImageUpload.tsx` — file input with client-side validation (JPEG/PNG/WebP, ≤ 2 MB), preview, upload to Supabase Storage `store-banners/{user_id}/banner.{ext}` using browser client, return public URL via `getPublicUrl()`. Before uploading a new banner, list and delete existing files in `store-banners/{user_id}/` to prevent orphaned storage objects when the file extension changes
-- [ ] T010 [P] [US1] Implement `saveStoreSettings` server action in `lib/actions/store.ts` — `requireAuth()`, validate `storeName` non-empty and `theme` in allowed list, upsert into `store_settings`, call `revalidatePath('/(dashboard)')` per contract
-- [ ] T011 [P] [US1] Implement `deleteBanner` server action in `lib/actions/store.ts` — `requireAuth()`, delete file from `store-banners` bucket, set `banner_url = null`, call `revalidatePath('/(dashboard)')` per contract
-- [ ] T012 [US1] Create `StoreSetupForm` client component in `components/store/StoreSetupForm.tsx` — form with store name input (required), `ImageUpload` for banner, theme preset selector using `THEME_PRESETS` from `lib/themes.ts`, calls `saveStoreSettings` on submit, handles loading/error states. Handle partial failure: if banner upload fails, still allow `saveStoreSettings` with `bannerUrl = null` and show upload error inline (depends on T009, T010, T011, T005)
-- [ ] T013 [US1] Add "Skip" / "Set up later" button to `StoreSetupForm` in `components/store/StoreSetupForm.tsx` — when tapped, call `saveStoreSettings` with default values (`storeName = "My Store"`, `theme = "light"`, `bannerUrl = null`), then redirect to `/pos`. Ensures onboarding is dismissible per constitution UX Rules (depends on T012)
-- [ ] T014 [US1] Create onboarding page in `app/(dashboard)/setup/page.tsx` — server component that renders `StoreSetupForm` in onboarding mode, redirects to `/pos` after successful save (depends on T012, T013)
-- [ ] T015 [US1] Modify `app/(dashboard)/layout.tsx` — call `getStoreSettings()` for redirect-to-setup logic: if no settings and path ≠ `/setup`, redirect to `/setup`. Wrap children in `StoreSettingsProvider` with fetched settings. Does NOT propagate theme to root layout — theme application on `<html>` is handled by T008 in `app/layout.tsx` (depends on T006, T007)
+- [x] T009 [P] [US1] Create `ImageUpload` client component in `components/ui/ImageUpload.tsx` — file input with client-side validation (JPEG/PNG/WebP, ≤ 2 MB), preview, upload to Supabase Storage `store-banners/{user_id}/banner.{ext}` using browser client, return public URL via `getPublicUrl()`. Before uploading a new banner, list and delete existing files in `store-banners/{user_id}/` to prevent orphaned storage objects when the file extension changes
+- [x] T010 [P] [US1] Implement `saveStoreSettings` server action in `lib/actions/store.ts` — `requireAuth()`, validate `storeName` non-empty and `theme` in allowed list, upsert into `store_settings`, call `revalidatePath('/(dashboard)')` per contract
+- [x] T011 [P] [US1] Implement `deleteBanner` server action in `lib/actions/store.ts` — `requireAuth()`, delete file from `store-banners` bucket, set `banner_url = null`, call `revalidatePath('/(dashboard)')` per contract
+- [x] T012 [US1] Create `StoreSetupForm` client component in `components/store/StoreSetupForm.tsx` — form with store name input (required), `ImageUpload` for banner, theme preset selector using `THEME_PRESETS` from `lib/themes.ts`, calls `saveStoreSettings` on submit, handles loading/error states. Handle partial failure: if banner upload fails, still allow `saveStoreSettings` with `bannerUrl = null` and show upload error inline (depends on T009, T010, T011, T005)
+- [x] T013 [US1] Add "Skip" / "Set up later" button to `StoreSetupForm` in `components/store/StoreSetupForm.tsx` — when tapped, call `saveStoreSettings` with default values (`storeName = "My Store"`, `theme = "light"`, `bannerUrl = null`), then redirect to `/pos`. Ensures onboarding is dismissible per constitution UX Rules (depends on T012)
+- [x] T014 [US1] Create onboarding page in `app/(dashboard)/setup/page.tsx` — server component that renders `StoreSetupForm` in onboarding mode, redirects to `/pos` after successful save (depends on T012, T013)
+- [x] T015 [US1] Modify `app/(dashboard)/layout.tsx` — call `getStoreSettings()` for redirect-to-setup logic: if no settings and path ≠ `/setup`, redirect to `/setup`. Wrap children in `StoreSettingsProvider` with fetched settings. Does NOT propagate theme to root layout — theme application on `<html>` is handled by T008 in `app/layout.tsx` (depends on T006, T007)
 
 **Checkpoint**: New users are redirected to `/setup`, can complete onboarding or skip with defaults, settings are persisted, theme is applied. User Story 1 is fully functional.
 
@@ -69,8 +69,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Create `StoreHeader` component in `components/store/StoreHeader.tsx` — reads from `useStoreSettings()` context, renders store name and banner (if present), uses `brand-*` Tailwind colors, handles missing banner gracefully
-- [ ] T017 [US2] Integrate `StoreHeader` into all dashboard screen pages: `app/(dashboard)/pos/page.tsx`, `app/(dashboard)/queue/page.tsx`, `app/(dashboard)/batch/page.tsx`, `app/(dashboard)/inventory/page.tsx`, `app/(dashboard)/reports/page.tsx` — add header above existing content
+- [x] T016 [US2] Create `StoreHeader` component in `components/store/StoreHeader.tsx` — reads from `useStoreSettings()` context, renders store name and banner (if present), uses `brand-*` Tailwind colors, handles missing banner gracefully
+- [x] T017 [US2] Integrate `StoreHeader` into all dashboard screen pages: `app/(dashboard)/pos/page.tsx`, `app/(dashboard)/queue/page.tsx`, `app/(dashboard)/batch/page.tsx`, `app/(dashboard)/inventory/page.tsx`, `app/(dashboard)/reports/page.tsx` — add header above existing content
 
 **Checkpoint**: Store name and banner display consistently across all dashboard screens. Theme colors apply globally. User Story 2 is fully functional.
 
@@ -84,8 +84,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Create settings page in `app/(dashboard)/settings/page.tsx` — server component that fetches current `store_settings` via `getStoreSettings()` and renders `StoreSetupForm` in edit mode (pre-populated with current values)
-- [ ] T019 [US3] Add a gear icon to the bottom nav bar in `app/(dashboard)/layout.tsx` linking to `/settings`
+- [x] T018 [US3] Create settings page in `app/(dashboard)/settings/page.tsx` — server component that fetches current `store_settings` via `getStoreSettings()` and renders `StoreSetupForm` in edit mode (pre-populated with current values)
+- [x] T019 [US3] Add a gear icon to the bottom nav bar in `app/(dashboard)/layout.tsx` linking to `/settings`
 
 **Checkpoint**: Users can edit all store settings after onboarding. Changes persist and reflect immediately. User Story 3 is fully functional.
 
@@ -99,8 +99,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T020 [US4] Create `ThemePreview` component in `components/store/ThemePreview.tsx` — renders a mock store header preview with live-bound `storeName`, `bannerUrl` (local object URL), and `theme` props, applies theme CSS custom properties scoped to the preview container
-- [ ] T021 [US4] Integrate `ThemePreview` into `StoreSetupForm` in `components/store/StoreSetupForm.tsx` — pass current form state (store name, selected banner, selected theme) as props, update preview on every form change
+- [x] T020 [US4] Create `ThemePreview` component in `components/store/ThemePreview.tsx` — renders a mock store header preview with live-bound `storeName`, `bannerUrl` (local object URL), and `theme` props, applies theme CSS custom properties scoped to the preview container
+- [x] T021 [US4] Integrate `ThemePreview` into `StoreSetupForm` in `components/store/StoreSetupForm.tsx` — pass current form state (store name, selected banner, selected theme) as props, update preview on every form change
 
 **Checkpoint**: Preview updates in real time as the user modifies form fields. User Story 4 is fully functional.
 
@@ -110,9 +110,9 @@
 
 **Purpose**: Edge case hardening and final validation
 
-- [ ] T022 [P] Verify edge cases: empty store name validation error, file type rejection for non-images, file size rejection for > 2 MB, banner-less header rendering (no broken image), network failure during upload preserves other form data, skip button creates defaults correctly
-- [ ] T023 [P] Verify theme renders on first paint with no flash of unstyled content (FOUC) — confirm `data-theme` is set server-side in the HTML response by `app/layout.tsx`
-- [ ] T024 Run `quickstart.md` end-to-end validation: apply migration, create storage bucket, start dev server, test full onboarding → skip → global branding → settings edit → theme switching flow
+- [x] T022 [P] Verify edge cases: empty store name validation error, file type rejection for non-images, file size rejection for > 2 MB, banner-less header rendering (no broken image), network failure during upload preserves other form data, skip button creates defaults correctly
+- [x] T023 [P] Verify theme renders on first paint with no flash of unstyled content (FOUC) — confirm `data-theme` is set server-side in the HTML response by `app/layout.tsx`
+- [x] T024 Run `quickstart.md` end-to-end validation: apply migration, create storage bucket, start dev server, test full onboarding → skip → global branding → settings edit → theme switching flow
 
 ---
 
