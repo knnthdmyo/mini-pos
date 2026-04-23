@@ -82,12 +82,12 @@ export function EditOrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl mx-4">
+      <div className="w-full max-w-lg rounded-2xl glass-modal p-6 shadow-xl mx-4">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900">Edit Order</h2>
+          <h2 className="text-lg font-bold text-brand-text">Edit Order</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            className="text-brand-muted/70 hover:text-gray-600 text-2xl leading-none"
           >
             ×
           </button>
@@ -101,16 +101,16 @@ export function EditOrderModal({
               return (
                 <li
                   key={line.productId}
-                  className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-2"
+                  className="flex items-center justify-between rounded-xl bg-brand-surface/40 px-4 py-2"
                 >
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-brand-text">
                     {product?.name}
                   </span>
                   <div className="flex items-center gap-3">
                     <span className="text-gray-600">× {line.quantity}</span>
                     <button
                       onClick={() => removeProduct(line.productId)}
-                      className="text-gray-400 hover:text-red-500 text-lg leading-none"
+                      className="text-brand-muted/70 hover:text-red-500 text-lg leading-none"
                     >
                       ×
                     </button>
@@ -127,10 +127,10 @@ export function EditOrderModal({
             <button
               key={p.id}
               onClick={() => addProduct(p.id)}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-left text-sm hover:border-indigo-300 hover:bg-indigo-50 active:bg-indigo-100"
+              className="rounded-xl border border-brand-border bg-brand-surface/60 px-3 py-2 text-left text-sm hover:border-brand-primary/40 hover:bg-brand-primary/10 active:bg-brand-primary/20"
             >
-              <div className="font-medium text-gray-900">{p.name}</div>
-              <div className="text-gray-500">₱{p.price.toFixed(2)}</div>
+              <div className="font-medium text-brand-text">{p.name}</div>
+              <div className="text-brand-muted">₱{p.price.toFixed(2)}</div>
             </button>
           ))}
         </div>

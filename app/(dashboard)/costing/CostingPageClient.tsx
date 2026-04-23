@@ -124,13 +124,13 @@ export default function CostingPageClient({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-gray-900">Costing</h1>
+      <h1 className="text-xl font-bold text-brand-text">Costing</h1>
 
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-3 text-center">
-          <p className="text-2xl font-bold text-gray-900">{products.length}</p>
+        <div className="rounded-xl glass p-3 text-center">
+          <p className="text-2xl font-bold text-brand-text">{products.length}</p>
           <p className="text-xs text-gray-500">Total Products</p>
         </div>
         <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-center">
@@ -162,8 +162,8 @@ export default function CostingPageClient({
                 className={[
                   "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
                   selectedVariantId === v.id
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300",
+                    ? "border-brand-primary/60 bg-brand-primary/10 text-brand-primary"
+                    : "border-brand-border bg-brand-surface/60 text-brand-text/80 hover:border-brand-border",
                 ].join(" ")}
               >
                 <span>{v.name}</span>
@@ -179,7 +179,7 @@ export default function CostingPageClient({
 
       {/* Costing builder */}
       {selectedProduct && !loading && (!hasVariants || selectedVariantId) && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <div className="rounded-2xl glass p-4">
           <CostingBuilder
             key={`${selectedProductId}-${selectedVariantId}`}
             productId={selectedProduct.id}

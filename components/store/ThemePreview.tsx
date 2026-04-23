@@ -1,15 +1,17 @@
 "use client";
 
 import type { ThemePreset } from "@/lib/themes";
+import { generateCustomVars } from "@/lib/themes";
 
 interface ThemePreviewProps {
   storeName: string;
   bannerUrl: string | null;
   theme: ThemePreset;
+  customPrimary?: string;
+  customSecondary?: string;
 }
 
-// Inline CSS custom property maps so preview is self-contained
-const THEME_VARS: Record<ThemePreset, Record<string, string>> = {
+const PRESET_VARS: Record<Exclude<ThemePreset, "custom">, Record<string, string>> = {
   light: {
     "--brand-bg": "249 250 251",
     "--brand-surface": "255 255 255",
@@ -37,14 +39,29 @@ const THEME_VARS: Record<ThemePreset, Record<string, string>> = {
     "--brand-muted": "146 64 14",
     "--brand-border": "253 230 138",
   },
+  floral: {
+    "--brand-bg": "255 241 242",
+    "--brand-surface": "255 228 230",
+    "--brand-primary": "225 29 72",
+    "--brand-accent": "244 63 94",
+    "--brand-text": "76 5 25",
+    "--brand-muted": "159 18 57",
+    "--brand-border": "254 205 211",
+  },
 };
 
 export default function ThemePreview({
   storeName,
   bannerUrl,
   theme,
+  customPrimary,
+  customSecondary,
 }: ThemePreviewProps) {
-  const vars = THEME_VARS[theme];
+  const vars =
+    theme === "custom" && customPrimary && customSecondary
+      ? generateCustomVars(customPrimary, customSecondary)
+      : PRESET_VARS[theme === "custom" ? "light" : theme];
+
   const style = Object.fromEntries(
     Object.entries(vars).map(([k, v]) => [k, v]),
   ) as React.CSSProperties;

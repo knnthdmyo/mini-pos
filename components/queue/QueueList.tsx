@@ -69,7 +69,7 @@ export function QueueList({
 
   if (orders.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 text-sm text-gray-400">
+      <div className="flex h-48 items-center justify-center rounded-2xl border-2 border-dashed border-brand-border/50 text-sm text-brand-muted">
         No active orders
       </div>
     );

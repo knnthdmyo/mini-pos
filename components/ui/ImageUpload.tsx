@@ -118,7 +118,7 @@ export default function ImageUpload({
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFile}
         disabled={uploading}
-        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-brand-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-primary hover:file:bg-brand-primary/20"
       />
 
       {uploading && <p className="text-sm text-gray-500">Uploading...</p>}

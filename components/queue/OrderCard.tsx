@@ -187,9 +187,9 @@ export function OrderCard({
 
   return (
     <>
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm flex flex-col gap-3">
+      <div className="rounded-2xl glass p-4 shadow-sm flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">{elapsed}</span>
+          <span className="text-xs text-brand-muted/70">{elapsed}</span>
           <div className="flex items-center gap-1.5">
             {isUnpaid && (
               <Badge variant="warning">Unpaid</Badge>
@@ -210,21 +210,21 @@ export function OrderCard({
           {order.order_items.map((item, idx) => (
             <li
               key={item.id ?? `${item.product_id}-${item.variant_id ?? idx}`}
-              className="flex justify-between text-sm text-gray-700"
+              className="flex justify-between text-sm text-brand-text/80"
             >
               <span>
                 {item.quantity}× {item.products?.name}
               </span>
-              <span className="text-gray-500">
+              <span className="text-brand-muted">
                 ₱{(item.unit_price * item.quantity).toFixed(2)}
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="border-t border-gray-100 pt-2 flex flex-col gap-2">
+        <div className="border-t border-brand-border/30 pt-2 flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-gray-900">
+            <span className="font-bold text-brand-text">
               ₱{order.total_price.toFixed(2)}
             </span>
             <div className="flex gap-2">
@@ -265,11 +265,11 @@ export function OrderCard({
 
       {confirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
-            <h2 className="text-base font-bold text-gray-900 mb-2">
+          <div className="w-full max-w-sm rounded-2xl glass-modal p-6 shadow-xl mx-4">
+            <h2 className="text-base font-bold text-brand-text mb-2">
               Cancel order?
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-brand-muted mb-6">
               This will remove the order. Any deducted stock will be restored.
             </p>
             <div className="flex justify-end gap-3">
@@ -296,11 +296,11 @@ export function OrderCard({
 
       {changeConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
-            <h2 className="text-base font-bold text-gray-900 mb-2">
+          <div className="w-full max-w-sm rounded-2xl glass-modal p-6 shadow-xl mx-4">
+            <h2 className="text-base font-bold text-brand-text mb-2">
               Unsettled change
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-brand-muted mb-6">
               This order has ₱{(order.change_amount ?? 0).toFixed(2)} in
               unsettled change. What would you like to do?
             </p>
@@ -338,18 +338,18 @@ export function OrderCard({
 
       {paymentCollectOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">
+          <div className="w-full max-w-sm rounded-2xl glass-modal p-6 shadow-xl mx-4">
+            <h2 className="text-lg font-bold text-brand-text mb-1">
               Collect payment
             </h2>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-brand-muted mb-4">
               Order total:{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-brand-text">
                 ₱{order.total_price.toFixed(2)}
               </span>
             </p>
 
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-brand-text/80 mb-1">
               Amount received
             </label>
             <input
@@ -364,16 +364,16 @@ export function OrderCard({
               }}
               placeholder="0.00"
               autoFocus
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-semibold tabular-nums focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full rounded-xl border border-brand-border px-4 py-3 text-lg font-semibold tabular-nums focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             />
 
             {collectInput.trim() !== "" && (() => {
               const recv = parseFloat(collectInput) || 0;
               const ch = recv - order.total_price;
               return (
-                <div className="mt-3 rounded-xl bg-gray-50 px-4 py-3">
+                <div className="mt-3 rounded-xl bg-brand-surface/40 px-4 py-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Change</span>
+                    <span className="text-sm text-brand-muted">Change</span>
                     <span
                       className={[
                         "text-lg font-bold tabular-nums",

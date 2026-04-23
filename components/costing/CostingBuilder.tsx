@@ -220,7 +220,7 @@ export default function CostingBuilder({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">
+        <h2 className="text-lg font-bold text-brand-text">
           Costing: {productName}
         </h2>
         {initialData?.updatedAt && (
@@ -245,14 +245,14 @@ export default function CostingBuilder({
         <button
           type="button"
           onClick={() => setRows((prev) => [...prev, emptyRow()])}
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+          className="text-sm font-medium text-brand-primary hover:text-brand-primary/80"
         >
           + Add Material Row
         </button>
 
-        <div className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
+        <div className="rounded-lg bg-brand-surface/40 px-3 py-2 text-sm">
           <span className="text-gray-500">Total Material Cost: </span>
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-brand-text">
             ₱{totalMaterialCost.toFixed(2)}
           </span>
         </div>
@@ -274,7 +274,7 @@ export default function CostingBuilder({
               onChange={(e) => setOverheadCost(Number(e.target.value) || 0)}
               min="0"
               step="any"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
             />
           </div>
           <div>
@@ -287,7 +287,7 @@ export default function CostingBuilder({
               onChange={(e) => setLaborCost(Number(e.target.value) || 0)}
               min="0"
               step="any"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
             />
           </div>
           <div>
@@ -300,14 +300,14 @@ export default function CostingBuilder({
               onChange={(e) => setOtherCost(Number(e.target.value) || 0)}
               min="0"
               step="any"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
             />
           </div>
         </div>
 
-        <div className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
+        <div className="rounded-lg bg-brand-surface/40 px-3 py-2 text-sm">
           <span className="text-gray-500">Total Production Cost: </span>
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-brand-text">
             ₱{totalProductionCost.toFixed(2)}
           </span>
           <span className="ml-2 text-xs text-gray-400">
@@ -335,7 +335,7 @@ export default function CostingBuilder({
               placeholder="e.g. 150"
               min="0"
               step="any"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
             />
             {yieldQuantity <= 0 && totalProductionCost > 0 && (
               <p className="mt-1 text-xs text-red-600">
@@ -343,9 +343,9 @@ export default function CostingBuilder({
               </p>
             )}
           </div>
-          <div className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
+          <div className="rounded-lg bg-brand-surface/40 px-3 py-2 text-sm">
             <span className="text-gray-500">Cost/Item: </span>
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-brand-text">
               {costPerItem > 0 ? `₱${costPerItem.toFixed(4)}` : "—"}
             </span>
           </div>

@@ -8,13 +8,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
-    "bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-300",
+    "bg-brand-primary text-white hover:bg-brand-primary/90 active:bg-brand-primary/80 disabled:bg-brand-primary/40 shadow-sm shadow-brand-primary/25",
   secondary:
-    "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50",
+    "glass text-brand-text hover:bg-brand-surface/80 active:bg-brand-surface/90 disabled:opacity-50",
   danger:
     "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300",
   ghost:
-    "bg-transparent text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50",
+    "bg-transparent text-brand-muted hover:bg-brand-surface/50 active:bg-brand-surface/70 disabled:opacity-50",
 };
 
 const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
@@ -33,7 +33,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={[
           "inline-flex items-center justify-center rounded-xl font-semibold",
-          "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+          "transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50",
           "disabled:cursor-not-allowed",
           variantClasses[variant],
           sizeClasses[size],

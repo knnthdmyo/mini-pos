@@ -52,14 +52,19 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Materials</h1>
-        <Button size="sm" onClick={() => setShowAdd(!showAdd)}>
+        <h1 className="text-xl font-bold text-brand-text">Materials</h1>
+        <Button
+          className="min-w-32"
+          size="sm"
+          onClick={() => setShowAdd(!showAdd)}
+          variant={showAdd ? "secondary" : "primary"}
+        >
           {showAdd ? "Cancel" : "Add Material"}
         </Button>
       </div>
 
       {showAdd && (
-        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-6 rounded-2xl glass p-4 shadow-sm">
           <MaterialForm
             onSuccess={() => {
               setShowAdd(false);
@@ -74,9 +79,9 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
           No materials yet. Add your first material above.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl glass shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-brand-border/30 bg-brand-surface/40">
               <tr>
                 <th className="px-4 py-3 font-medium text-gray-700">Name</th>
                 <th className="px-4 py-3 font-medium text-gray-700">Unit</th>
@@ -108,7 +113,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
                     </td>
                   ) : (
                     <>
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td className="px-4 py-3 font-medium text-brand-text">
                         {m.name}
                       </td>
                       <td className="px-4 py-3 text-gray-600">{m.unit}</td>
@@ -121,7 +126,7 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
                       <td className="flex gap-2 px-4 py-3">
                         <button
                           onClick={() => setEditingId(m.id)}
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                          className="text-sm font-medium text-brand-primary hover:text-brand-primary/80"
                         >
                           Edit
                         </button>
@@ -145,8 +150,8 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
       {/* Delete confirmation dialog */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-base font-bold text-gray-900">
+          <div className="w-full max-w-sm rounded-2xl glass-modal p-6 shadow-xl">
+            <h3 className="mb-2 text-base font-bold text-brand-text">
               Delete Material?
             </h3>
             <p className="mb-3 text-sm text-gray-600">

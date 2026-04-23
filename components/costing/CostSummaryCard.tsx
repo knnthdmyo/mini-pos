@@ -55,7 +55,7 @@ export default function CostSummaryCard({
             "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none",
             marginError
               ? "border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-              : "border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500",
+              : "border-brand-border focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30",
           ].join(" ")}
         />
         {marginError && (
@@ -67,20 +67,20 @@ export default function CostSummaryCard({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-gray-200 bg-white p-3">
           <p className="text-xs text-gray-500">Total Cost</p>
-          <p className="text-lg font-bold text-gray-900">
+          <p className="text-lg font-bold text-brand-text">
             ₱{totalProductionCost.toFixed(2)}
           </p>
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-3">
           <p className="text-xs text-gray-500">Cost/Item</p>
-          <p className="text-lg font-bold text-gray-900">
+          <p className="text-lg font-bold text-brand-text">
             {costPerItem > 0 ? `₱${costPerItem.toFixed(4)}` : "—"}
           </p>
         </div>
 
-        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3">
-          <p className="text-xs text-indigo-600">
+        <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/10 p-3">
+          <p className="text-xs text-brand-primary">
             SRP {srpOverride && "(manual)"}
           </p>
           <input
@@ -89,12 +89,12 @@ export default function CostSummaryCard({
             onChange={(e) => onSrpChange(Number(e.target.value) || 0)}
             min="0"
             step="any"
-            className="w-full border-0 bg-transparent p-0 text-lg font-bold text-indigo-900 focus:outline-none"
+            className="w-full border-0 bg-transparent p-0 text-lg font-bold text-brand-text focus:outline-none"
           />
           {srpOverride && (
             <button
               onClick={onSrpOverrideClear}
-              className="mt-1 text-xs text-indigo-500 hover:text-indigo-700"
+              className="mt-1 text-xs text-brand-primary/70 hover:text-brand-primary"
             >
               Reset to suggested
             </button>
@@ -141,7 +141,7 @@ export default function CostSummaryCard({
 
         <div className="rounded-xl border border-gray-200 bg-white p-3">
           <p className="text-xs text-gray-500">Yield</p>
-          <p className="text-lg font-bold text-gray-900">
+          <p className="text-lg font-bold text-brand-text">
             {yieldQuantity > 0 ? `${yieldQuantity} pcs` : "—"}
           </p>
         </div>

@@ -93,9 +93,9 @@ export default function VariantManager({ productId, productName, onClose }: Vari
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-2xl glass-modal p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-gray-900">
+          <h3 className="text-base font-bold text-brand-text">
             Variants — {productName}
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg">✕</button>
@@ -108,7 +108,7 @@ export default function VariantManager({ productId, productName, onClose }: Vari
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="e.g. Small"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
           />
           <input
             type="number"
@@ -117,7 +117,7 @@ export default function VariantManager({ productId, productName, onClose }: Vari
             placeholder="₱"
             min="0"
             step="any"
-            className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            className="w-24 rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
           />
           <Button type="submit" size="sm" disabled={saving}>Add</Button>
         </form>
@@ -132,14 +132,14 @@ export default function VariantManager({ productId, productName, onClose }: Vari
         ) : (
           <div className="space-y-2">
             {variants.map((v) => (
-              <div key={v.id} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+              <div key={v.id} className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2">
                 {editingId === v.id ? (
                   <>
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
+                      className="flex-1 rounded border border-brand-border px-2 py-1 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
                     />
                     <input
                       type="number"
@@ -147,12 +147,12 @@ export default function VariantManager({ productId, productName, onClose }: Vari
                       onChange={(e) => setEditPrice(Number(e.target.value) || 0)}
                       min="0"
                       step="any"
-                      className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
+                      className="w-20 rounded border border-brand-border px-2 py-1 text-sm text-brand-text bg-brand-surface/40 focus:border-brand-primary focus:outline-none"
                     />
                     <button
                       onClick={() => handleUpdate(v.id)}
                       disabled={saving}
-                      className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                      className="text-xs font-medium text-brand-primary hover:text-brand-primary/80"
                     >
                       Save
                     </button>
@@ -165,11 +165,11 @@ export default function VariantManager({ productId, productName, onClose }: Vari
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-sm font-medium text-gray-900">{v.name}</span>
+                    <span className="flex-1 text-sm font-medium text-brand-text">{v.name}</span>
                     <span className="text-sm text-gray-600">₱{Number(v.price).toFixed(2)}</span>
                     <button
                       onClick={() => { setEditingId(v.id); setEditName(v.name); setEditPrice(Number(v.price)); }}
-                      className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                      className="text-xs font-medium text-brand-primary hover:text-brand-primary/80"
                     >
                       Edit
                     </button>

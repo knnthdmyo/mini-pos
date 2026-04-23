@@ -22,7 +22,7 @@ export default function StoreHeader() {
   }, [open]);
 
   return (
-    <header className="relative flex items-center gap-3 bg-brand-surface px-4 py-3">
+    <header className="relative z-50 flex items-center gap-3 glass-heavy px-4 py-3">
       {bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -61,18 +61,18 @@ export default function StoreHeader() {
         </button>
 
         {open && (
-          <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+          <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl glass-modal py-1 shadow-lg">
             <Link
               href="/settings"
               onClick={() => setOpen(false)}
-              className="flex min-h-[48px] items-center px-4 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex min-h-[48px] items-center px-4 text-sm text-brand-text hover:bg-brand-primary/10"
             >
               Settings
             </Link>
             <form action={logout}>
               <button
                 type="submit"
-                className="flex min-h-[48px] w-full items-center px-4 text-sm text-red-600 hover:bg-gray-100"
+                className="flex min-h-[48px] w-full items-center px-4 text-sm text-red-600 hover:bg-red-500/10"
               >
                 Sign out
               </button>

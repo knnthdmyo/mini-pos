@@ -71,14 +71,14 @@ export default function ManageClient({
           className={[
             "rounded-2xl border p-4 text-left transition-all",
             active === s.key
-              ? "border-indigo-400 bg-indigo-50 shadow-sm"
-              : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm",
+              ? "border-brand-primary/60 bg-brand-primary/10 shadow-sm"
+              : "border-brand-border bg-brand-surface/60 hover:border-brand-border hover:shadow-sm",
           ].join(" ")}
         >
           <div className="flex items-center gap-3">
             <span className="text-xl">{s.icon}</span>
             <div>
-              <p className="text-sm font-semibold text-gray-900">{s.label}</p>
+              <p className="text-sm font-semibold text-brand-text">{s.label}</p>
               <p className="text-xs text-gray-500">
                 {s.key === "products" && `${products.length} product${products.length !== 1 ? "s" : ""}`}
                 {s.key === "materials" && `${materials.length} material${materials.length !== 1 ? "s" : ""}`}
@@ -106,7 +106,7 @@ export default function ManageClient({
       {/* ── Mobile: tab layout ── */}
       <div className="flex h-[calc(100dvh-8rem)] flex-col md:hidden">
         {/* Tab bar */}
-        <div className="flex shrink-0 border-b border-gray-200 bg-white">
+        <div className="flex shrink-0 border-b border-brand-border/30 glass-heavy">
           {SECTIONS.map((s) => (
             <button
               key={s.key}
@@ -114,7 +114,7 @@ export default function ManageClient({
               className={[
                 "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold transition-colors",
                 active === s.key
-                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  ? "border-b-2 border-brand-primary text-brand-primary"
                   : "text-gray-500",
               ].join(" ")}
             >
@@ -125,7 +125,7 @@ export default function ManageClient({
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20">
+        <div className="flex-1 overflow-y-auto bg-brand-bg p-4 pb-20">
           {content}
         </div>
       </div>
@@ -133,13 +133,13 @@ export default function ManageClient({
       {/* ── Desktop: two-column layout ── */}
       <div className="hidden md:flex h-[calc(100dvh-8rem)] divide-x divide-gray-200 overflow-hidden">
         {/* Left sidebar */}
-        <div className="w-64 shrink-0 overflow-y-auto bg-gray-50 p-4">
-          <h2 className="mb-4 text-lg font-bold text-gray-900">Inventory</h2>
+        <div className="w-64 shrink-0 overflow-y-auto bg-brand-bg p-4">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Inventory</h2>
           {sidebarCards}
         </div>
 
         {/* Right content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-6 pb-20">
+        <div className="flex-1 overflow-y-auto bg-brand-bg p-6 pb-20">
           <div className="mx-auto max-w-3xl">
             {content}
           </div>
