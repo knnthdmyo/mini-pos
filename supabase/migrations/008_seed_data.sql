@@ -1,0 +1,41 @@
+-- 006_seed_data.sql
+-- Sample data for smoke testing. Run after migrations 001–005.
+
+-- Products
+INSERT INTO products (id, name, price, is_active)
+VALUES
+  ('11111111-0000-0000-0000-000000000001', 'Classic Milkshake', 120.00, true),
+  ('11111111-0000-0000-0000-000000000002', 'Chocolate Shake', 130.00, true),
+  ('11111111-0000-0000-0000-000000000003', 'Strawberry Shake', 130.00, true),
+  ('11111111-0000-0000-0000-000000000004', 'Candy Bag S', 50.00, true),
+  ('11111111-0000-0000-0000-000000000005', 'Candy Bag L', 90.00, true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Ingredients
+INSERT INTO ingredients (id, name, unit, stock_qty, cost_per_unit, low_stock_threshold)
+VALUES
+  ('22222222-0000-0000-0000-000000000001', 'Milk', 'ml', 10000, 0.08, 2000),
+  ('22222222-0000-0000-0000-000000000002', 'Vanilla Powder', 'g', 2000, 0.50, 500),
+  ('22222222-0000-0000-0000-000000000003', 'Chocolate Powder', 'g', 2000, 0.60, 500),
+  ('22222222-0000-0000-0000-000000000004', 'Strawberry Syrup', 'ml', 3000, 0.35, 500),
+  ('22222222-0000-0000-0000-000000000005', 'Assorted Candy', 'g', 5000, 0.20, 1000)
+ON CONFLICT (id) DO NOTHING;
+
+-- Recipes (per 1 unit of product)
+-- Include quantity_required to satisfy legacy NOT NULL constraint on remote DB.
+INSERT INTO recipes (product_id, ingredient_id, quantity_per_unit, quantity_required)
+VALUES
+  -- Classic Milkshake
+  ('11111111-0000-0000-0000-000000000001', '22222222-0000-0000-0000-000000000001', 250, 250),
+  ('11111111-0000-0000-0000-000000000001', '22222222-0000-0000-0000-000000000002', 30, 30),
+  -- Chocolate Shake
+  ('11111111-0000-0000-0000-000000000002', '22222222-0000-0000-0000-000000000001', 250, 250),
+  ('11111111-0000-0000-0000-000000000002', '22222222-0000-0000-0000-000000000003', 40, 40),
+  -- Strawberry Shake
+  ('11111111-0000-0000-0000-000000000003', '22222222-0000-0000-0000-000000000001', 250, 250),
+  ('11111111-0000-0000-0000-000000000003', '22222222-0000-0000-0000-000000000004', 50, 50),
+  -- Candy Bag S
+  ('11111111-0000-0000-0000-000000000004', '22222222-0000-0000-0000-000000000005', 100, 100),
+  -- Candy Bag L
+  ('11111111-0000-0000-0000-000000000005', '22222222-0000-0000-0000-000000000005', 200, 200)
+ON CONFLICT DO NOTHING;
