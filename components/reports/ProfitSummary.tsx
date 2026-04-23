@@ -30,9 +30,6 @@ export function ProfitSummary({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-gray-400">
-        {start} – {end}
-      </p>
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-2xl glass p-4 shadow-sm text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">

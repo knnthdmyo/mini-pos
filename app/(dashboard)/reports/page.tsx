@@ -35,6 +35,7 @@ export default function ReportsPage() {
   const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
   const [productChartType, setProductChartType] = useState<ProductChartType>("pie");
   const [showFilters, setShowFilters] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
 
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [reportData, setReportData] = useState<ReportResult | null>(null);
@@ -127,7 +128,24 @@ export default function ReportsPage() {
         </p>
       )}
 
-      {reportData && <ProfitSummary {...reportData} />}
+      {reportData && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-400">
+              {new Date(reportData.startDate).toLocaleDateString("en-PH", { month: "short", day: "numeric" })}
+              {" – "}
+              {new Date(reportData.endDate).toLocaleDateString("en-PH", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+            <button
+              onClick={() => setShowTransactions(true)}
+              className="rounded-xl border border-brand-primary/40 bg-brand-primary/5 px-3 py-1.5 text-xs font-medium text-brand-primary transition-colors hover:bg-brand-primary/10"
+            >
+              View Transactions
+            </button>
+          </div>
+          <ProfitSummary {...reportData} />
+        </div>
+      )}
 
       {/* Charts row: 33 / 66 on desktop, stacked on mobile */}
       <div className="flex flex-col gap-4 lg:flex-row">
@@ -157,9 +175,7 @@ export default function ReportsPage() {
         loading={isPending}
       />
 
-      {reportData && (
-        <TransactionTable transactions={reportData.transactions} />
-      )}
+
 
       {!isPending && !error && !reportData && (
         <p className="py-8 text-center text-sm text-gray-400">
@@ -188,13 +204,6 @@ export default function ReportsPage() {
             >
               {showFilters ? "Hide Filters" : "Filters"}
             </button>
-            <button
-              onClick={handleExport}
-              disabled={isExporting || !reportData}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
-            >
-              {isExporting ? "Exporting…" : "Export"}
-            </button>
           </div>
         </div>
 
@@ -215,15 +224,8 @@ export default function ReportsPage() {
       <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
         {/* Left sidebar — filters */}
         <div className="w-72 shrink-0 overflow-y-auto bg-brand-bg p-4">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4">
             <h2 className="text-lg font-bold text-brand-text">Reports</h2>
-            <button
-              onClick={handleExport}
-              disabled={isExporting || !reportData}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
-            >
-              {isExporting ? "Exporting…" : "Export"}
-            </button>
           </div>
           <ReportFilters {...filterProps} />
         </div>
@@ -235,6 +237,40 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
+      {/* Transactions modal */}
+      {showTransactions && reportData && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowTransactions(false)}
+          />
+          <div className="relative flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-2xl sm:rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="text-sm font-semibold text-gray-700">Transactions</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
+                >
+                  {isExporting ? "Exporting…" : "Export"}
+                </button>
+                <button
+                  onClick={() => setShowTransactions(false)}
+                  className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <TransactionTable transactions={reportData.transactions} />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
