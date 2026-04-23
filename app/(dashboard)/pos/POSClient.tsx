@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ProductGrid } from "@/components/pos/ProductGrid";
 import { CartSummary } from "@/components/pos/CartSummary";
 import { PlaceOrderButton } from "@/components/pos/PlaceOrderButton";
+import { PaymentModal } from "@/components/pos/PaymentModal";
 import { Toast, useToast } from "@/components/ui/Toast";
 import { placeOrder } from "@/lib/actions/orders";
 import { usePosStore } from "@/lib/store/PosStoreProvider";
@@ -34,13 +35,25 @@ export function POSClient({ products }: POSClientProps) {
     removeOrder,
   } = usePosStore();
   const [loading, setLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const { toast, showToast, dismiss } = useToast();
 
-  async function handlePlaceOrder() {
+  const cartTotal = cart.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
+
+  function handlePlaceOrder() {
     if (cart.length === 0) {
       showToast("Add at least one item before placing.", "error");
       return;
     }
+    setShowPayment(true);
+  }
+
+  async function handlePaymentConfirm(payment: {
+    amountReceived: number;
+    changeAmount: number;
+    changeGiven: boolean;
+  }) {
+    setShowPayment(false);
 
     const snapshot: CartLine[] = cart.map((l) => ({ ...l }));
     const tempId = `temp-${Date.now()}`;
@@ -48,11 +61,11 @@ export function POSClient({ products }: POSClientProps) {
     addOrder({
       id: tempId,
       status: "placed",
-      total_price: snapshot.reduce(
-        (sum, l) => sum + l.unitPrice * l.quantity,
-        0,
-      ),
+      total_price: cartTotal,
       created_at: new Date().toISOString(),
+      amount_received: payment.amountReceived,
+      change_amount: payment.changeAmount,
+      change_given: payment.changeGiven,
       order_items: snapshot.map((l) => ({
         product_id: l.productId,
         variant_id: l.variantId,
@@ -71,6 +84,7 @@ export function POSClient({ products }: POSClientProps) {
           variantId: l.variantId,
           quantity: l.quantity,
         })),
+        payment,
       );
       replaceOrder(tempId, realOrder);
       showToast("Order placed!", "success");
@@ -119,6 +133,14 @@ export function POSClient({ products }: POSClientProps) {
 
       {toast && (
         <Toast message={toast.message} type={toast.type} onDismiss={dismiss} />
+      )}
+
+      {showPayment && (
+        <PaymentModal
+          total={cartTotal}
+          onConfirm={handlePaymentConfirm}
+          onCancel={() => setShowPayment(false)}
+        />
       )}
     </div>
   );

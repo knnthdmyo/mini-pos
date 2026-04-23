@@ -1,13 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { completeOrder, cancelOrder } from "@/lib/actions/orders";
+import {
+  completeOrder,
+  cancelOrder,
+  markChangeGiven,
+  markOrderPaid,
+} from "@/lib/actions/orders";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Toast, useToast } from "@/components/ui/Toast";
 
 interface OrderItem {
+  id?: string;
   product_id: string;
+  variant_id?: string | null;
   quantity: number;
   unit_price: number;
   products: { name: string };
@@ -18,6 +25,9 @@ interface Order {
   status: string;
   total_price: number;
   created_at: string;
+  amount_received?: number;
+  change_amount?: number;
+  change_given?: boolean;
   order_items: OrderItem[];
 }
 
@@ -26,6 +36,7 @@ interface OrderCardProps {
   onComplete: (id: string) => void;
   onEdit: (order: Order) => void;
   onCancel: (id: string) => void;
+  onOrderUpdate?: (order: Order) => void;
 }
 
 function useElapsed(createdAt: string) {
@@ -53,14 +64,36 @@ export function OrderCard({
   onComplete,
   onEdit,
   onCancel,
+  onOrderUpdate,
 }: OrderCardProps) {
   const [completing, setCompleting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [markingGiven, setMarkingGiven] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [changeConfirmOpen, setChangeConfirmOpen] = useState(false);
+  const [paymentCollectOpen, setPaymentCollectOpen] = useState(false);
+  const [collectInput, setCollectInput] = useState("");
   const { toast, showToast, dismiss } = useToast();
   const elapsed = useElapsed(order.created_at);
 
+  const isUnpaid = (order.amount_received ?? 0) === 0;
+  const hasUnsettledChange =
+    !isUnpaid && (order.change_amount ?? 0) > 0 && order.change_given === false;
+
   async function handleComplete() {
+    if (isUnpaid) {
+      setCollectInput("");
+      setPaymentCollectOpen(true);
+      return;
+    }
+    if (hasUnsettledChange) {
+      setChangeConfirmOpen(true);
+      return;
+    }
+    await doComplete();
+  }
+
+  async function doComplete() {
     setCompleting(true);
     try {
       await completeOrder(order.id);
@@ -72,6 +105,68 @@ export function OrderCard({
       );
     } finally {
       setCompleting(false);
+    }
+  }
+
+  async function handleMarkGivenAndComplete() {
+    setCompleting(true);
+    try {
+      await markChangeGiven(order.id);
+      await completeOrder(order.id);
+      onComplete(order.id);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to complete order",
+        "error",
+      );
+    } finally {
+      setCompleting(false);
+      setChangeConfirmOpen(false);
+    }
+  }
+
+  async function handleCompleteWithoutGiving() {
+    setChangeConfirmOpen(false);
+    await doComplete();
+  }
+
+  async function handleMarkChangeGiven() {
+    setMarkingGiven(true);
+    try {
+      await markChangeGiven(order.id);
+      onOrderUpdate?.({ ...order, change_given: true });
+      showToast("Change marked as given", "success");
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to update",
+        "error",
+      );
+    } finally {
+      setMarkingGiven(false);
+    }
+  }
+
+  async function handleCollectAndComplete() {
+    const received = parseFloat(collectInput) || 0;
+    if (received < order.total_price) return;
+    setCompleting(true);
+    try {
+      const change = received - order.total_price;
+      await markOrderPaid(order.id, {
+        amountReceived: received,
+        changeAmount: change,
+        changeGiven: change === 0,
+      });
+      await completeOrder(order.id);
+      onComplete(order.id);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to complete order",
+        "error",
+      );
+    } finally {
+      setCompleting(false);
+      setPaymentCollectOpen(false);
     }
   }
 
@@ -95,13 +190,26 @@ export function OrderCard({
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">{elapsed}</span>
-          <Badge variant="info">Placed</Badge>
+          <div className="flex items-center gap-1.5">
+            {isUnpaid && (
+              <Badge variant="warning">Unpaid</Badge>
+            )}
+            {hasUnsettledChange && (
+              <Badge variant="warning">
+                Change owed: ₱{(order.change_amount ?? 0).toFixed(2)}
+              </Badge>
+            )}
+            {(order.change_amount ?? 0) > 0 && order.change_given === true && (
+              <Badge variant="success">✓ Change given</Badge>
+            )}
+            <Badge variant="info">Placed</Badge>
+          </div>
         </div>
 
         <ul className="space-y-1">
-          {order.order_items.map((item) => (
+          {order.order_items.map((item, idx) => (
             <li
-              key={item.product_id}
+              key={item.id ?? `${item.product_id}-${item.variant_id ?? idx}`}
               className="flex justify-between text-sm text-gray-700"
             >
               <span>
@@ -114,30 +222,44 @@ export function OrderCard({
           ))}
         </ul>
 
-        <div className="border-t border-gray-100 pt-2 flex items-center justify-between">
-          <span className="font-bold text-gray-900">
-            ₱{order.total_price.toFixed(2)}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setConfirmOpen(true)}
-            >
-              Cancel
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onEdit(order)}>
-              Edit
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleComplete}
-              disabled={completing}
-            >
-              {completing ? "…" : "Complete"}
-            </Button>
+        <div className="border-t border-gray-100 pt-2 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-gray-900">
+              ₱{order.total_price.toFixed(2)}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setConfirmOpen(true)}
+              >
+                Cancel
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onEdit(order)}>
+                Edit
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleComplete}
+                disabled={completing}
+              >
+                {completing ? "…" : "Complete"}
+              </Button>
+            </div>
           </div>
+
+          {hasUnsettledChange && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleMarkChangeGiven}
+              disabled={markingGiven}
+              className="w-full"
+            >
+              {markingGiven ? "Updating…" : "Mark change as given"}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -166,6 +288,131 @@ export function OrderCard({
                 disabled={cancelling}
               >
                 {cancelling ? "Cancelling…" : "Yes, cancel"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {changeConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2">
+              Unsettled change
+            </h2>
+            <p className="text-sm text-gray-500 mb-6">
+              This order has ₱{(order.change_amount ?? 0).toFixed(2)} in
+              unsettled change. What would you like to do?
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleMarkGivenAndComplete}
+                disabled={completing}
+                className="w-full"
+              >
+                {completing ? "…" : "Mark given & complete"}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCompleteWithoutGiving}
+                disabled={completing}
+                className="w-full"
+              >
+                Complete without giving
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setChangeConfirmOpen(false)}
+                className="w-full"
+              >
+                Go back
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentCollectOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              Collect payment
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Order total:{" "}
+              <span className="font-semibold text-gray-900">
+                ₱{order.total_price.toFixed(2)}
+              </span>
+            </p>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Amount received
+            </label>
+            <input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              value={collectInput}
+              onChange={(e) => setCollectInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCollectAndComplete();
+              }}
+              placeholder="0.00"
+              autoFocus
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-semibold tabular-nums focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            />
+
+            {collectInput.trim() !== "" && (() => {
+              const recv = parseFloat(collectInput) || 0;
+              const ch = recv - order.total_price;
+              return (
+                <div className="mt-3 rounded-xl bg-gray-50 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Change</span>
+                    <span
+                      className={[
+                        "text-lg font-bold tabular-nums",
+                        ch >= 0 ? "text-green-600" : "text-red-600",
+                      ].join(" ")}
+                    >
+                      ₱{ch.toFixed(2)}
+                    </span>
+                  </div>
+                  {ch < 0 && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Amount is less than the total
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div className="mt-5 flex flex-col gap-2">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleCollectAndComplete}
+                disabled={
+                  completing ||
+                  (parseFloat(collectInput) || 0) < order.total_price ||
+                  collectInput.trim() === ""
+                }
+                className="w-full"
+              >
+                {completing ? "Processing…" : "Collect & complete"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPaymentCollectOpen(false)}
+                className="w-full"
+              >
+                Go back
               </Button>
             </div>
           </div>

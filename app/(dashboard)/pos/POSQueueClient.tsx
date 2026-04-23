@@ -71,6 +71,21 @@ export function POSQueueClient({
           if (payload.eventType === "UPDATE" && record.status === "completed") {
             removeOrder(record.id);
           }
+
+          if (payload.eventType === "UPDATE" && record.status === "placed") {
+            updateOrders((prev) =>
+              prev.map((o) =>
+                o.id === record.id
+                  ? {
+                      ...o,
+                      change_given: record.change_given,
+                      amount_received: record.amount_received,
+                      change_amount: record.change_amount,
+                    }
+                  : o,
+              ),
+            );
+          }
         },
       )
       .subscribe();
@@ -78,7 +93,7 @@ export function POSQueueClient({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [addOrder, removeOrder]);
+  }, [addOrder, removeOrder, updateOrders]);
 
   const queuePanel = (
     <div className="flex flex-col h-full overflow-hidden bg-gray-50">
