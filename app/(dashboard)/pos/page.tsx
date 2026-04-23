@@ -4,28 +4,32 @@ import { POSQueueClient } from "./POSQueueClient";
 export default async function POSPage() {
   const supabase = createClient();
 
-  const [{ data: products }, { data: variants }, { data: orders }, { data: recipes }] =
-    await Promise.all([
-      supabase
-        .from("products")
-        .select("id, name, price")
-        .eq("is_active", true)
-        .order("name"),
-      supabase
-        .from("product_variants")
-        .select("id, product_id, name, price, sort_order")
-        .eq("is_active", true)
-        .order("sort_order")
-        .order("name"),
-      supabase
-        .from("orders")
-        .select("*, order_items(*, products(name))")
-        .eq("status", "placed")
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("recipes")
-        .select("product_id, quantity_per_unit, ingredients(stock_qty)"),
-    ]);
+  const [
+    { data: products },
+    { data: variants },
+    { data: orders },
+    { data: recipes },
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id, name, price")
+      .eq("is_active", true)
+      .order("name"),
+    supabase
+      .from("product_variants")
+      .select("id, product_id, name, price, sort_order")
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("name"),
+    supabase
+      .from("orders")
+      .select("*, order_items(*, products(name))")
+      .eq("status", "placed")
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("recipes")
+      .select("product_id, quantity_per_unit, ingredients(stock_qty)"),
+  ]);
 
   // Compute servings available per product
   const stockMap = new Map<string, number>();
@@ -61,13 +65,15 @@ export default async function POSPage() {
         servingsLeft: stockMap.get(p.id) ?? null,
       }));
     }
-    return [{
-      id: p.id,
-      variantId: null as string | null,
-      name: p.name,
-      price: Number(p.price),
-      servingsLeft: stockMap.get(p.id) ?? null,
-    }];
+    return [
+      {
+        id: p.id,
+        variantId: null as string | null,
+        name: p.name,
+        price: Number(p.price),
+        servingsLeft: stockMap.get(p.id) ?? null,
+      },
+    ];
   });
 
   return (
