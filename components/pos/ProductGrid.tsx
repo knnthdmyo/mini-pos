@@ -24,12 +24,12 @@ export function ProductGrid({ products, onAdd }: ProductGridProps) {
           <button
             key={key}
             onClick={() => onAdd(product)}
-            className="flex min-h-[80px] flex-col items-center justify-center rounded-2xl border-2 border-gray-200 bg-white p-4 text-center shadow-sm transition-all active:scale-95 active:border-indigo-400 active:bg-indigo-50 hover:border-indigo-300 hover:shadow"
+            className="flex min-h-[80px] flex-col items-center justify-center rounded-2xl glass p-4 text-center shadow-sm transition-all active:scale-95 active:border-brand-primary/60 active:bg-brand-primary/10 hover:border-brand-primary/40 hover:shadow"
           >
-            <span className="text-base font-semibold text-gray-900 leading-tight">
+            <span className="text-base font-semibold text-brand-text leading-tight">
               {product.name}
             </span>
-            <span className="mt-1 text-sm font-medium text-indigo-600">
+            <span className="mt-1 text-sm font-semibold text-brand-text/70">
               ₱{product.price.toFixed(2)}
             </span>
             {product.servingsLeft !== null && (
@@ -40,7 +40,7 @@ export function ProductGrid({ products, onAdd }: ProductGridProps) {
                     ? "text-red-500"
                     : product.servingsLeft <= 5
                       ? "text-amber-500"
-                      : "text-gray-400",
+                      : "text-brand-muted",
                 ].join(" ")}
               >
                 {product.servingsLeft === 0

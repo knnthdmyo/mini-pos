@@ -122,7 +122,7 @@ export function POSClient({ products }: POSClientProps) {
         />
       </div>
 
-      <div className="shrink-0 border-t border-gray-200 bg-white p-4">
+      <div className="shrink-0 border-t border-brand-border/30 p-4">
         <PlaceOrderButton
           isEmpty={cart.length === 0}
           loading={loading}

@@ -5,11 +5,11 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<NonNullable<BadgeProps["variant"]>, string> = {
-  default: "bg-gray-100 text-gray-700",
-  success: "bg-green-100 text-green-700",
-  warning: "bg-amber-100 text-amber-700",
-  danger:  "bg-red-100 text-red-700",
-  info:    "bg-blue-100 text-blue-700",
+  default: "bg-brand-surface/60 text-brand-muted backdrop-blur-sm border border-brand-border/40",
+  success: "bg-green-500/10 text-green-600 backdrop-blur-sm border border-green-500/20",
+  warning: "bg-amber-500/10 text-amber-600 backdrop-blur-sm border border-amber-500/20",
+  danger:  "bg-red-500/10 text-red-600 backdrop-blur-sm border border-red-500/20",
+  info:    "bg-brand-primary/10 text-brand-primary backdrop-blur-sm border border-brand-primary/20",
 };
 
 export function Badge({ variant = "default", children, className = "" }: BadgeProps) {

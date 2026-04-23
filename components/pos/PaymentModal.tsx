@@ -54,13 +54,13 @@ export function PaymentModal({ total, onConfirm, onCancel, allowPayLater = true 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl mx-4">
-        <h2 className="text-lg font-bold text-gray-900 mb-1">Payment</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Order total: <span className="font-semibold text-gray-900">₱{total.toFixed(2)}</span>
+      <div className="w-full max-w-sm rounded-2xl glass-modal p-6 shadow-xl mx-4">
+        <h2 className="text-lg font-bold text-brand-text mb-1">Payment</h2>
+        <p className="text-sm text-brand-muted mb-4">
+          Order total: <span className="font-semibold text-brand-text">₱{total.toFixed(2)}</span>
         </p>
 
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-brand-text/80 mb-1">
           Amount received
         </label>
         <input
@@ -75,13 +75,13 @@ export function PaymentModal({ total, onConfirm, onCancel, allowPayLater = true 
             if (e.key === "Enter" && isValid) handleGiveNow();
           }}
           placeholder="0.00"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg font-semibold tabular-nums focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          className="w-full rounded-xl border border-brand-border px-4 py-3 text-lg font-semibold tabular-nums focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
         />
 
         {input.trim() !== "" && (
-          <div className="mt-3 rounded-xl bg-gray-50 px-4 py-3">
+          <div className="mt-3 rounded-xl bg-brand-surface/40 px-4 py-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Change</span>
+              <span className="text-sm text-brand-muted">Change</span>
               <span
                 className={[
                   "text-lg font-bold tabular-nums",

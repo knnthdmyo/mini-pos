@@ -29,15 +29,15 @@ export function CartSummary({
 
   if (lines.length === 0) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white text-sm text-gray-400">
+      <div className="flex h-32 items-center justify-center rounded-2xl border-2 border-dashed border-brand-border/50 text-sm text-brand-muted">
         Tap a product to add it
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      <ul className="divide-y divide-gray-100">
+    <div className="rounded-2xl glass overflow-hidden shadow-sm">
+      <ul className="divide-y divide-brand-border/30">
         {lines.map((line) => {
           const key = line.variantId
             ? `${line.productId}::${line.variantId}`
@@ -48,13 +48,13 @@ export function CartSummary({
               className="flex items-center justify-between px-4 py-3"
             >
               <div>
-                <p className="font-medium text-gray-900">{line.name}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-brand-text">{line.name}</p>
+                <p className="text-sm text-brand-muted">
                   ₱{line.unitPrice.toFixed(2)} × {line.quantity}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-brand-text">
                   ₱{(line.unitPrice * line.quantity).toFixed(2)}
                 </span>
                 <div className="flex items-center gap-1">
@@ -69,12 +69,12 @@ export function CartSummary({
                           line.variantId,
                         );
                     }}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-900 active:bg-gray-100 transition-colors text-base leading-none"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-border/50 text-brand-muted hover:border-brand-primary/40 hover:text-brand-text active:bg-brand-primary/10 transition-colors text-base leading-none"
                     aria-label="Decrease quantity"
                   >
                     −
                   </button>
-                  <span className="w-5 text-center text-sm font-medium tabular-nums">
+                  <span className="w-5 text-center text-sm font-medium tabular-nums text-brand-text">
                     {line.quantity}
                   </span>
                   <button
@@ -85,14 +85,14 @@ export function CartSummary({
                         line.variantId,
                       )
                     }
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-900 active:bg-gray-100 transition-colors text-base leading-none"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-border/50 text-brand-muted hover:border-brand-primary/40 hover:text-brand-text active:bg-brand-primary/10 transition-colors text-base leading-none"
                     aria-label="Increase quantity"
                   >
                     +
                   </button>
                   <button
                     onClick={() => onRemove(line.productId, line.variantId)}
-                    className="ml-1 text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
+                    className="ml-1 text-brand-muted/50 hover:text-red-500 transition-colors text-lg leading-none"
                     aria-label={`Remove ${line.name}`}
                   >
                     ×
@@ -103,13 +103,13 @@ export function CartSummary({
           );
         })}
       </ul>
-      <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-3">
-        <span className="text-lg font-bold text-gray-900">
+      <div className="flex items-center justify-between border-t border-brand-border/30 bg-brand-surface/40 px-4 py-3">
+        <span className="text-lg font-bold text-brand-text">
           Total: ₱{total.toFixed(2)}
         </span>
         <button
           onClick={onClear}
-          className="text-sm text-gray-400 hover:text-red-500 transition-colors"
+          className="text-sm text-brand-muted hover:text-red-500 transition-colors"
         >
           Clear
         </button>

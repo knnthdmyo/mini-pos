@@ -22,8 +22,8 @@ export function Toast({ message, type = "error", onDismiss }: ToastProps) {
     <div
       role="alert"
       className={[
-        "fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg",
-        type === "error" ? "bg-red-600 text-white" : "bg-green-600 text-white",
+        "fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg backdrop-blur-md",
+        type === "error" ? "bg-red-600/90 text-white" : "bg-green-600/90 text-white",
       ].join(" ")}
     >
       {message}

@@ -96,9 +96,9 @@ export function POSQueueClient({
   }, [addOrder, removeOrder, updateOrders]);
 
   const queuePanel = (
-    <div className="flex flex-col h-full overflow-hidden bg-gray-50">
-      <div className="sticky top-0 z-10 border-b border-gray-200 bg-gray-50 px-4 py-3 hidden md:block">
-        <h2 className="text-lg font-bold text-gray-900">Queue</h2>
+    <div className="flex flex-col h-full overflow-hidden bg-brand-bg">
+      <div className="sticky top-0 z-10 border-b border-brand-border/30 bg-brand-bg px-4 py-3 hidden md:block">
+        <h2 className="text-lg font-bold text-brand-text">Queue</h2>
       </div>
       <div className="flex-1 overflow-y-auto p-4 pb-20">
         <QueueList
@@ -117,7 +117,7 @@ export function POSQueueClient({
       {/* ── Mobile: tab layout ── */}
       <div className="flex flex-col h-[calc(100dvh-8rem)] md:hidden">
         {/* Tab bar */}
-        <div className="flex shrink-0 border-b border-gray-200 bg-white">
+        <div className="flex shrink-0 border-b border-brand-border/30 glass-heavy">
           {(["pos", "queue"] as const).map((tab) => (
             <button
               key={tab}
@@ -125,13 +125,13 @@ export function POSQueueClient({
               className={[
                 "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-semibold transition-colors",
                 activeTab === tab
-                  ? "border-b-2 border-indigo-600 text-indigo-600"
-                  : "text-gray-500",
+                  ? "border-b-2 border-brand-primary text-brand-primary"
+                  : "text-brand-muted",
               ].join(" ")}
             >
               {tab === "pos" ? "POS" : "Queue"}
               {tab === "queue" && orders.length > 0 && (
-                <span className="rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                <span className="rounded-full bg-brand-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
                   {orders.length}
                 </span>
               )}
