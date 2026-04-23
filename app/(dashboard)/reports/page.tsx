@@ -20,6 +20,7 @@ import { ReportFilters } from "@/components/reports/ReportFilters";
 import { SalesByProductChart } from "@/components/reports/SalesByProductChart";
 import type { ProductChartType } from "@/components/reports/SalesByProductChart";
 import { PeakTimesChart } from "@/components/reports/PeakTimesChart";
+import { WeeklyPerformanceChart } from "@/components/reports/WeeklyPerformanceChart";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
 import { TransactionTable } from "@/components/reports/TransactionTable";
 
@@ -149,6 +150,12 @@ export default function ReportsPage() {
           />
         </div>
       </div>
+
+      <WeeklyPerformanceChart
+        data={chartData?.weeklyPerformance ?? []}
+        metric={metric}
+        loading={isPending}
+      />
 
       {reportData && (
         <TransactionTable transactions={reportData.transactions} />
