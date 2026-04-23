@@ -16,6 +16,32 @@ A mobile-friendly point-of-sale and inventory management system for small food b
 - [Supabase](https://supabase.com/) (Postgres, Auth, Realtime)
 - [Tailwind CSS](https://tailwindcss.com/)
 - TypeScript
+- [SpecKit](https://github.com/speckit-dev/speckit) — spec-first development workflow
+
+## Development Workflow
+
+This project was built using [SpecKit](https://github.com/speckit-dev/speckit), a spec-first development workflow tool. The full specification lives in `specs/001-pos-inventory-mvp/`.
+
+### SpecKit Commands
+
+| Command | Description |
+|---|---|
+| `speckit.specify` | Define or refine the feature spec |
+| `speckit.plan` | Generate a technical plan from the spec |
+| `speckit.tasks` | Break the plan into actionable tasks |
+| `speckit.implement` | Implement tasks one by one |
+| `speckit.checklist` | Verify requirements against the implementation |
+
+### Spec Documents
+
+| File | Description |
+|---|---|
+| `specs/.../spec.md` | Feature requirements and user stories |
+| `specs/.../plan.md` | Technical architecture and approach |
+| `specs/.../tasks.md` | Granular task list with completion status |
+| `specs/.../data-model.md` | Database schema design |
+| `specs/.../contracts/` | API contracts (server actions, realtime channels) |
+| `specs/.../checklists/` | Requirements verification checklists |
 
 ## Getting Started
 
