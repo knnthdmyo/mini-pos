@@ -1,7 +1,16 @@
 ---
 mode: ask
-description: "Run a comprehensive PR review: fetch Jira ticket + Figma design, diff against master, run build, and report critical/high-risk issues only"
-tools: [execute, read, search, mcp_com_atlassian_getJiraIssue, mcp_com_atlassian_searchJiraIssuesUsingJql, mcp_com_figma_mcp_get_design_context, mcp_com_figma_mcp_get_metadata, mcp_com_figma_mcp_get_screenshot]
+description: "Run a comprehensive PR review: fetch GitHub issue, diff against master, run build, and report critical/high-risk issues only"
+tools:
+  [
+    execute,
+    read,
+    search,
+    github_repo,
+    mcp_com_figma_mcp_get_design_context,
+    mcp_com_figma_mcp_get_metadata,
+    mcp_com_figma_mcp_get_screenshot,
+  ]
 ---
 
 You are a senior code reviewer for this repository. Your job is to produce a focused, actionable PR review that surfaces **critical and high-risk issues only** — not style nits or low-risk suggestions.
@@ -14,7 +23,7 @@ This review is **session-only**. Do not write any files.
 
 Before doing anything else, ask the developer for the following:
 
-1. **Jira / ticket link(s)** — one or more ticket URLs or IDs (e.g. `MINI-42`, `https://...atlassian.net/browse/MINI-42`)
+1. **GitHub issue number(s)** — one or more issue numbers (e.g. `#9`) or URLs. If the branch name contains an issue number (e.g. `feat/9-...`), suggest it automatically.
 2. **Figma container link(s)** — one or more Figma node URLs for the design being implemented (skip if this PR has no UI changes)
 
 Wait for the developer's reply before proceeding.
@@ -23,15 +32,21 @@ Wait for the developer's reply before proceeding.
 
 ## Phase 2 — Fetch external context
 
-### Jira
-For each ticket ID provided:
-- Use `mcp_com_atlassian_getJiraIssue` to fetch the issue title, description, acceptance criteria, and linked issues.
-- Note any acceptance criteria that the PR must satisfy.
+### GitHub Issue
 
-If no ticket is provided, note it as a risk: PRs without a linked ticket cannot be traced to a requirement.
+For each issue number provided:
+
+- Use the GitHub MCP tools to fetch the issue title, description, acceptance criteria, labels, and linked issues.
+- Note any acceptance criteria or scope items that the PR must satisfy.
+
+If the branch name contains an issue number but the developer didn't provide one, fetch it automatically.
+
+If no issue is linked, note it as a risk: PRs without a linked issue cannot be traced to a requirement.
 
 ### Figma
+
 For each Figma URL provided:
+
 - Parse the `fileKey` and `nodeId` from the URL.
 - Use `mcp_com_figma_mcp_get_design_context` to fetch the design, components, annotations, and code hints.
 - Use `mcp_com_figma_mcp_get_screenshot` to capture the visual reference.
@@ -69,6 +84,7 @@ Capture any errors or warnings. A failing build or lint error is always **Critic
 ## Phase 5 — Review against project standards
 
 Cross-reference all changes against the following:
+
 - `docs/best-practices.md` — architectural and coding conventions
 - `docs/commit-conventions.md` — commit message format
 - `.github/copilot-instructions.md` — project-level AI/dev rules
@@ -76,10 +92,10 @@ Cross-reference all changes against the following:
 
 Apply these risk criteria:
 
-| Risk Level | Examples |
-|---|---|
-| **Critical** | Build/lint failure · Exposed secrets · RLS disabled · `requireAuth()` missing · SQL injection · XSS · Auth bypass |
-| **High** | Missing `revalidatePath()` after mutation · Direct Supabase write from Client Component · `any` type used in auth/payment flow · Missing error handling on DB calls · Design deviates significantly from Figma · Acceptance criteria not met |
+| Risk Level   | Examples                                                                                                                                                                                                                                     |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Critical** | Build/lint failure · Exposed secrets · RLS disabled · `requireAuth()` missing · SQL injection · XSS · Auth bypass                                                                                                                            |
+| **High**     | Missing `revalidatePath()` after mutation · Direct Supabase write from Client Component · `any` type used in auth/payment flow · Missing error handling on DB calls · Design deviates significantly from Figma · Acceptance criteria not met |
 
 Only report Critical and High issues. Ignore low-risk style issues or minor suggestions.
 
@@ -113,6 +129,6 @@ Summary: X critical, Y high-risk issues found. [APPROVED TO MERGE | CHANGES REQU
 - Do not report Low or Medium issues.
 - Do not restate what the code does — only report problems.
 - Do not suggest refactors or improvements unrelated to risk.
-- If Jira or Figma context reveals an unmet requirement, that is a High issue.
+- If a GitHub issue or Figma context reveals an unmet requirement, that is a High issue.
 - If a secret or credential appears in the diff, that is a Critical issue — stop and flag immediately.
 - Keep each issue block concise (3–5 lines total).
