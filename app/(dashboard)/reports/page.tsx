@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getReport } from "@/lib/actions/reports";
 import { ProfitSummary } from "@/components/reports/ProfitSummary";
 
@@ -24,24 +24,27 @@ export default function ReportsPage() {
   const [period, setPeriod] = useState<Period>("daily");
   const [data, setData] = useState<ReportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
-  function handleSelect(p: Period) {
+  const handleSelect = useCallback(async (p: Period) => {
     setPeriod(p);
     setError(null);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const result = await getReport(p);
       if ("error" in result) {
         setError(result.error as string);
       } else {
         setData(result as ReportResult);
       }
-    });
-  }
+    } finally {
+      setIsPending(false);
+    }
+  }, []);
 
-  // Auto-load today's report on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { handleSelect("daily"); }, []);
+  useEffect(() => {
+    handleSelect("daily");
+  }, [handleSelect]);
 
   return (
     <div className="h-[calc(100dvh-8rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
