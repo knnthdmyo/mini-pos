@@ -70,7 +70,7 @@ export default function ReportsPage() {
             disabled={isExporting || !data}
             className="flex items-center gap-1.5 rounded-xl bg-white border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 transition-colors"
           >
-            {isExporting ? "Exporting…" : "Export .xlsx"}
+            {isExporting ? "Exporting…" : "Export"}
           </button>
         </div>
 
