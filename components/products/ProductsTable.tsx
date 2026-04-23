@@ -61,7 +61,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
       </div>
 
       {showAdd && (
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <ProductForm
             onSuccess={() => {
               setShowAdd(false);
@@ -76,7 +76,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
           No products yet. Add your first product above.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>

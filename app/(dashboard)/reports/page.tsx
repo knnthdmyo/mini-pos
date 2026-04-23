@@ -40,46 +40,48 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-6 overflow-y-auto pb-20 p-4">
-      <h1 className="text-xl font-bold text-gray-900">Reports</h1>
+    <div className="h-[calc(100dvh-4rem)] overflow-y-auto bg-gray-50 p-4 pb-20">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <h1 className="text-xl font-bold text-gray-900">Reports</h1>
 
-      {/* Period tabs */}
-      <div className="flex gap-2">
-        {PERIODS.map((p) => (
-          <button
-            key={p.value}
-            onClick={() => handleSelect(p.value)}
-            disabled={isPending}
-            className={[
-              "flex-1 rounded-xl py-2 text-sm font-medium transition-colors",
-              period === p.value
-                ? "bg-indigo-600 text-white shadow"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-            ].join(" ")}
-          >
-            {p.label}
-          </button>
-        ))}
+        {/* Period tabs */}
+        <div className="flex gap-2">
+          {PERIODS.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => handleSelect(p.value)}
+              disabled={isPending}
+              className={[
+                "flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors",
+                period === p.value
+                  ? "bg-indigo-600 text-white shadow"
+                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50",
+              ].join(" ")}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        {isPending && (
+          <p className="text-center text-sm text-gray-400">Loading…</p>
+        )}
+
+        {error && !isPending && (
+          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </p>
+        )}
+
+        {!isPending && !error && data && <ProfitSummary {...data} />}
+
+        {!isPending && !error && !data && (
+          <p className="py-8 text-center text-sm text-gray-400">
+            Select a period above to load the report.
+          </p>
+        )}
       </div>
-
-      {/* Content */}
-      {isPending && (
-        <p className="text-center text-sm text-gray-400">Loading…</p>
-      )}
-
-      {error && !isPending && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
-        </p>
-      )}
-
-      {!isPending && !error && data && <ProfitSummary {...data} />}
-
-      {!isPending && !error && !data && (
-        <p className="text-center text-sm text-gray-400">
-          Select a period above to load the report.
-        </p>
-      )}
     </div>
   );
 }

@@ -87,7 +87,7 @@ export function POSClient({ products }: POSClientProps) {
   }
 
   return (
-    <div className="flex h-full flex-col p-4 pb-0">
+    <div className="flex h-full flex-col bg-gray-50 p-4 pb-0">
       <h1 className="mb-4 text-xl font-bold text-gray-900 hidden md:block">
         POS
       </h1>
