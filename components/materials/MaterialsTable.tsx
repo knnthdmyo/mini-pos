@@ -53,7 +53,12 @@ export default function MaterialsTable({ materials }: MaterialsTableProps) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-brand-text">Materials</h1>
-        <Button size="sm" onClick={() => setShowAdd(!showAdd)}>
+        <Button
+          className="min-w-32"
+          size="sm"
+          onClick={() => setShowAdd(!showAdd)}
+          variant={showAdd ? "secondary" : "primary"}
+        >
           {showAdd ? "Cancel" : "Add Material"}
         </Button>
       </div>

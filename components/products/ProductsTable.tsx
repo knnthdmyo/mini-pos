@@ -36,7 +36,10 @@ export default function ProductsTable({ products }: ProductsTableProps) {
         showToast("Product deleted", "success");
       }
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to delete", "error");
+      showToast(
+        err instanceof Error ? err.message : "Failed to delete",
+        "error",
+      );
     } finally {
       setDeleting(false);
     }
@@ -45,9 +48,15 @@ export default function ProductsTable({ products }: ProductsTableProps) {
   async function handleToggle(id: string, currentActive: boolean) {
     try {
       await toggleProductActive(id, !currentActive);
-      showToast(currentActive ? "Product deactivated" : "Product activated", "success");
+      showToast(
+        currentActive ? "Product deactivated" : "Product activated",
+        "success",
+      );
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to toggle", "error");
+      showToast(
+        err instanceof Error ? err.message : "Failed to toggle",
+        "error",
+      );
     }
   }
 
@@ -55,7 +64,12 @@ export default function ProductsTable({ products }: ProductsTableProps) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-brand-text">Products</h1>
-        <Button size="sm" onClick={() => setShowAdd(!showAdd)}>
+        <Button
+          className="min-w-32"
+          size="sm"
+          onClick={() => setShowAdd(!showAdd)}
+          variant={showAdd ? "secondary" : "primary"}
+        >
           {showAdd ? "Cancel" : "Add Product"}
         </Button>
       </div>
@@ -107,8 +121,12 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                     </td>
                   ) : (
                     <>
-                      <td className="px-4 py-3 font-medium text-brand-text">{p.name}</td>
-                      <td className="px-4 py-3 text-gray-600">₱{Number(p.price).toFixed(2)}</td>
+                      <td className="px-4 py-3 font-medium text-brand-text">
+                        {p.name}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        ₱{Number(p.price).toFixed(2)}
+                      </td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleToggle(p.id, p.is_active)}
