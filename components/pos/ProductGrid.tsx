@@ -16,7 +16,7 @@ interface ProductGridProps {
 
 export function ProductGrid({ products, onAdd }: ProductGridProps) {
   return (
-    <div className=" mb-10">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 mb-5">
       {products.map((product) => (
         <button
           key={product.id}
