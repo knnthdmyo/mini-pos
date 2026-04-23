@@ -95,20 +95,32 @@ export function SalesByProductChart({
               outerRadius={90}
               innerRadius={40}
               paddingAngle={2}
-              label={(props: PieLabelRenderProps) =>
-                `${props.name ?? ""} ${((props.percent ?? 0) * 100).toFixed(0)}%`
-              }
+              label={({ x, y, name, percent }: PieLabelRenderProps) => (
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  style={{ fontSize: 10, fill: "#374151" }}
+                >
+                  <tspan x={x} dy="-0.4em" fontWeight={600}>
+                    {name ?? ""}
+                  </tspan>
+                  <tspan x={x} dy="1.2em">
+                    {((percent ?? 0) * 100).toFixed(0)}%
+                  </tspan>
+                </text>
+              )}
               labelLine={false}
-              style={{ fontSize: 10 }}
             >
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip
-              formatter={(value) => [
+              formatter={(value, _key, entry) => [
                 formatValue(value as number | undefined, metric),
-                metric === "quantity" ? "Qty" : metric === "profit" ? "Profit" : "Sales",
+                entry.payload?.label ?? "",
               ]}
               contentStyle={{
                 borderRadius: "8px",

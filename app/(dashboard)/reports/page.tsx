@@ -32,7 +32,7 @@ export default function ReportsPage() {
   });
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
-  const [productChartType, setProductChartType] = useState<ProductChartType>("bar");
+  const [productChartType, setProductChartType] = useState<ProductChartType>("pie");
   const [showFilters, setShowFilters] = useState(false);
 
   const [chartData, setChartData] = useState<ChartData | null>(null);
