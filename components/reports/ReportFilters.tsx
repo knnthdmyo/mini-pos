@@ -32,16 +32,16 @@ function ToggleGroup<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex flex-wrap gap-1">
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={[
-            "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+            "rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
             value === o.value
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
+              ? "bg-brand-primary text-white shadow-sm"
+              : "border border-brand-border bg-brand-surface/60 text-brand-text hover:bg-brand-surface",
           ].join(" ")}
         >
           {o.label}
@@ -98,51 +98,56 @@ export function ReportFilters({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-      {/* Date presets */}
-      <ToggleGroup
-        options={DATE_PRESETS}
-        value={datePreset}
-        onChange={onDatePresetChange}
-      />
-
-      {/* Custom range inputs */}
-      {datePreset === "custom" && (
-        <div className="flex gap-2">
-          <div className="flex flex-1 flex-col gap-1">
-            <label className="text-xs text-gray-500">From</label>
-            <input
-              type="date"
-              value={toDateInputValue(customRange.start)}
-              onChange={(e) => {
-                const d = new Date(e.target.value + "T00:00:00");
-                if (!isNaN(d.getTime())) {
-                  onCustomRangeChange({ ...customRange, start: d });
-                }
-              }}
-              className="rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-800"
-            />
+    <div className="space-y-4">
+      {/* Date range */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          Date Range
+        </p>
+        <ToggleGroup
+          options={DATE_PRESETS}
+          value={datePreset}
+          onChange={onDatePresetChange}
+        />
+        {datePreset === "custom" && (
+          <div className="mt-2 flex gap-2">
+            <div className="flex flex-1 flex-col gap-1">
+              <label className="text-xs text-gray-500">From</label>
+              <input
+                type="date"
+                value={toDateInputValue(customRange.start)}
+                onChange={(e) => {
+                  const d = new Date(e.target.value + "T00:00:00");
+                  if (!isNaN(d.getTime())) {
+                    onCustomRangeChange({ ...customRange, start: d });
+                  }
+                }}
+                className="rounded-lg border border-brand-border bg-brand-surface/60 px-2 py-1.5 text-xs text-brand-text"
+              />
+            </div>
+            <div className="flex flex-1 flex-col gap-1">
+              <label className="text-xs text-gray-500">To</label>
+              <input
+                type="date"
+                value={toDateInputValue(customRange.end)}
+                onChange={(e) => {
+                  const d = new Date(e.target.value + "T23:59:59");
+                  if (!isNaN(d.getTime())) {
+                    onCustomRangeChange({ ...customRange, end: d });
+                  }
+                }}
+                className="rounded-lg border border-brand-border bg-brand-surface/60 px-2 py-1.5 text-xs text-brand-text"
+              />
+            </div>
           </div>
-          <div className="flex flex-1 flex-col gap-1">
-            <label className="text-xs text-gray-500">To</label>
-            <input
-              type="date"
-              value={toDateInputValue(customRange.end)}
-              onChange={(e) => {
-                const d = new Date(e.target.value + "T23:59:59");
-                if (!isNaN(d.getTime())) {
-                  onCustomRangeChange({ ...customRange, end: d });
-                }
-              }}
-              className="rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-800"
-            />
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Metric toggle */}
-      <div className="space-y-1">
-        <p className="text-xs font-medium text-gray-500">Metric</p>
+      {/* Metric */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          Metric
+        </p>
         <ToggleGroup
           options={METRICS}
           value={metric}
@@ -150,9 +155,11 @@ export function ReportFilters({
         />
       </div>
 
-      {/* Granularity toggle */}
-      <div className="space-y-1">
-        <p className="text-xs font-medium text-gray-500">Group by (Chart 1)</p>
+      {/* Granularity */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          Group by
+        </p>
         <ToggleGroup
           options={GRANULARITIES}
           value={granularity}
@@ -160,19 +167,20 @@ export function ReportFilters({
         />
       </div>
 
-      {/* Product pills */}
+      {/* Product filter */}
       {products.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-gray-500">Products</p>
+        <div className="space-y-1.5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Products
+          </p>
           <div className="flex flex-wrap gap-1.5">
-            {/* All pill */}
             <button
               onClick={() => onProductIdsChange([])}
               className={[
                 "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                 selectedProductIds.length === 0
-                  ? "bg-indigo-600 text-white"
-                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
+                  ? "bg-brand-primary text-white"
+                  : "border border-brand-border bg-brand-surface/60 text-brand-text hover:bg-brand-surface",
               ].join(" ")}
             >
               All
@@ -184,8 +192,8 @@ export function ReportFilters({
                 className={[
                   "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                   selectedProductIds.includes(p.id)
-                    ? "bg-indigo-600 text-white"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
+                    ? "bg-brand-primary text-white"
+                    : "border border-brand-border bg-brand-surface/60 text-brand-text hover:bg-brand-surface",
                 ].join(" ")}
               >
                 {p.name}

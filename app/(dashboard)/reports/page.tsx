@@ -34,6 +34,7 @@ export default function ReportsPage() {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [granularity, setGranularity] = useState<Granularity>("hourly");
   const [peakBasis, setPeakBasis] = useState<PeakBasis>("completed_at");
+  const [showFilters, setShowFilters] = useState(false);
 
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [reportData, setReportData] = useState<ReportResult | null>(null);
@@ -48,12 +49,10 @@ export default function ReportsPage() {
     [datePreset, customRange.start.toISOString(), customRange.end.toISOString()],
   );
 
-  // Load products for filter chips on mount
   useEffect(() => {
     listActiveProducts().then(setProducts).catch(() => {});
   }, []);
 
-  // Re-fetch when filters change
   useEffect(() => {
     setError(null);
     startTransition(() => {
@@ -84,7 +83,15 @@ export default function ReportsPage() {
     setIsExporting(true);
     try {
       const preset =
-        datePreset === "custom" ? "today" : datePreset === "yesterday" ? "yesterday" : datePreset === "month" ? "month" : datePreset === "year" ? "year" : "today";
+        datePreset === "custom"
+          ? "today"
+          : datePreset === "yesterday"
+            ? "yesterday"
+            : datePreset === "month"
+              ? "month"
+              : datePreset === "year"
+                ? "year"
+                : "today";
       const res = await fetch(`/api/reports/export?period=${preset}`);
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
@@ -101,80 +108,129 @@ export default function ReportsPage() {
     }
   }
 
+  const filterProps = {
+    metric,
+    onMetricChange: setMetric,
+    datePreset,
+    onDatePresetChange: setDatePreset,
+    customRange,
+    onCustomRangeChange: setCustomRange,
+    granularity,
+    onGranularityChange: setGranularity,
+    selectedProductIds,
+    onProductIdsChange: setSelectedProductIds,
+    products,
+  };
+
+  const charts = (
+    <div className="space-y-4">
+      {error && (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      <SalesOverTimeChart
+        data={chartData?.salesOverTime ?? []}
+        metric={metric}
+        loading={isPending}
+      />
+
+      <SalesByProductChart
+        data={chartData?.salesByProduct ?? []}
+        metric={metric}
+        loading={isPending}
+      />
+
+      <PeakTimesChart
+        data={chartData?.peakTimes ?? []}
+        metric={metric}
+        peakBasis={peakBasis}
+        onPeakBasisChange={setPeakBasis}
+        loading={isPending}
+      />
+
+      {reportData && (
+        <>
+          <ProfitSummary {...reportData} />
+          <TransactionTable transactions={reportData.transactions} />
+        </>
+      )}
+
+      {!isPending && !error && !reportData && (
+        <p className="py-8 text-center text-sm text-gray-400">
+          Loading report…
+        </p>
+      )}
+    </div>
+  );
+
   return (
-    <div className="h-[calc(100dvh-4rem)] overflow-y-auto bg-brand-bg p-4 pb-20">
-      <div className="mx-auto max-w-3xl space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Reports</h1>
-          <button
-            onClick={handleExport}
-            disabled={isExporting || !reportData}
-            className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
-          >
-            {isExporting ? "Exporting…" : "Export"}
-          </button>
+    <>
+      {/* ── Mobile: stacked layout with collapsible filters ── */}
+      <div className="flex h-[calc(100dvh-4rem)] flex-col md:hidden">
+        {/* Header bar */}
+        <div className="flex shrink-0 items-center justify-between border-b border-brand-border/30 bg-brand-surface/40 px-4 py-3">
+          <h1 className="text-lg font-bold text-brand-text">Reports</h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={[
+                "rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors",
+                showFilters
+                  ? "border-brand-primary/60 bg-brand-primary/10 text-brand-primary"
+                  : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
+              ].join(" ")}
+            >
+              {showFilters ? "Hide Filters" : "Filters"}
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={isExporting || !reportData}
+              className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
+            >
+              {isExporting ? "Exporting…" : "Export"}
+            </button>
+          </div>
         </div>
 
-        {/* Filters */}
-        <ReportFilters
-          metric={metric}
-          onMetricChange={setMetric}
-          datePreset={datePreset}
-          onDatePresetChange={setDatePreset}
-          customRange={customRange}
-          onCustomRangeChange={setCustomRange}
-          granularity={granularity}
-          onGranularityChange={setGranularity}
-          selectedProductIds={selectedProductIds}
-          onProductIdsChange={setSelectedProductIds}
-          products={products}
-        />
-
-        {/* Error */}
-        {error && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </p>
+        {/* Collapsible filters */}
+        {showFilters && (
+          <div className="shrink-0 border-b border-brand-border/30 bg-brand-bg p-3">
+            <ReportFilters {...filterProps} />
+          </div>
         )}
 
-        {/* Chart 1 */}
-        <SalesOverTimeChart
-          data={chartData?.salesOverTime ?? []}
-          metric={metric}
-          loading={isPending}
-        />
-
-        {/* Chart 2 */}
-        <SalesByProductChart
-          data={chartData?.salesByProduct ?? []}
-          metric={metric}
-          loading={isPending}
-        />
-
-        {/* Chart 3 */}
-        <PeakTimesChart
-          data={chartData?.peakTimes ?? []}
-          metric={metric}
-          peakBasis={peakBasis}
-          onPeakBasisChange={setPeakBasis}
-          loading={isPending}
-        />
-
-        {/* Existing summary + transactions */}
-        {reportData && (
-          <>
-            <ProfitSummary {...reportData} />
-            <TransactionTable transactions={reportData.transactions} />
-          </>
-        )}
-
-        {!isPending && !error && !reportData && (
-          <p className="py-8 text-center text-sm text-gray-400">
-            Loading report…
-          </p>
-        )}
+        {/* Charts */}
+        <div className="flex-1 overflow-y-auto bg-brand-bg p-4 pb-20">
+          {charts}
+        </div>
       </div>
-    </div>
+
+      {/* ── Desktop: two-column layout (filters left, charts right) ── */}
+      <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
+        {/* Left sidebar — filters */}
+        <div className="w-72 shrink-0 overflow-y-auto bg-brand-bg p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-brand-text">Reports</h2>
+            <button
+              onClick={handleExport}
+              disabled={isExporting || !reportData}
+              className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-40"
+            >
+              {isExporting ? "Exporting…" : "Export"}
+            </button>
+          </div>
+          <ReportFilters {...filterProps} />
+        </div>
+
+        {/* Right content — charts */}
+        <div className="flex-1 overflow-y-auto bg-brand-bg p-6 pb-20">
+          <div className="mx-auto max-w-4xl">
+            {charts}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
