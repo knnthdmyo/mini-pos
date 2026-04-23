@@ -53,8 +53,11 @@ Validate the feature against each principle from `.specify/memory/constitution.m
       Does the system assist without enforcing?
 - [ ] **X. Transparency** — Does the costing UI show full breakdown (materials,
       overhead, labor, total, profit)? No black-box formulas?
-- [ ] **Scope** — Is this feature in the MVP1 or MVP2 Included list? If not, flag
-      immediately.
+- [ ] **XI. Personalization Without Performance Cost** — If this feature touches
+      branding/theme, are settings loaded once and cached? No runtime style
+      computation? No latency added to POS, queue, or reporting flows?
+- [ ] **Scope** — Is this feature in the MVP1, MVP2, or MVP3 Included list? If not,
+      flag immediately.
 - [ ] **Data Integrity** — Are all mutations logged? Are inventory deductions
       traceable to an order or manual adjustment? Is material cost the source of
       truth for costing?
