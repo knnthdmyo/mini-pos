@@ -7,7 +7,7 @@ import OnboardingModal from "@/components/materials/OnboardingModal";
 
 const navItems = [
   { href: "/pos", label: "POS", icon: "🛒" },
-  { href: "/manage", label: "Manage", icon: "⚙️" },
+  { href: "/manage", label: "Inventory", icon: "📋" },
   { href: "/reports", label: "Reports", icon: "📊" },
 ];
 

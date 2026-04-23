@@ -134,7 +134,7 @@ export default function ManageClient({
       <div className="hidden md:flex h-[calc(100dvh-4rem)] divide-x divide-gray-200 overflow-hidden">
         {/* Left sidebar */}
         <div className="w-64 shrink-0 overflow-y-auto bg-gray-50 p-4">
-          <h2 className="mb-4 text-lg font-bold text-gray-900">Manage</h2>
+          <h2 className="mb-4 text-lg font-bold text-gray-900">Inventory</h2>
           {sidebarCards}
         </div>
 
