@@ -61,9 +61,10 @@ export function PeakTimesChart({
         </div>
       </div>
       {loading ? (
-        <div className="h-[240px] animate-pulse rounded-lg bg-gray-100" />
+        <div className="min-h-[240px] flex-1 animate-pulse rounded-lg bg-gray-100" />
       ) : (
-        <ResponsiveContainer width="100%" height={240}>
+        <div className="min-h-[240px] flex-1">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis
@@ -95,6 +96,7 @@ export function PeakTimesChart({
             <Bar dataKey="value" fill="#818cf8" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
