@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
 import type { Metric, ChartPoint } from "@/lib/actions/reports";
+import { useBrandColors, useBrandPalette } from "@/lib/use-brand-colors";
 
 export type ProductChartType = "bar" | "pie";
 
@@ -26,11 +27,7 @@ interface SalesByProductChartProps {
   loading: boolean;
 }
 
-const COLORS = [
-  "#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd",
-  "#818cf8", "#4f46e5", "#4338ca", "#3730a3",
-  "#6d28d9", "#7c3aed", "#5b21b6", "#2563eb",
-];
+
 
 function formatValue(value: number | string | undefined, metric: Metric): string {
   if (metric === "quantity") return String(value ?? 0);
@@ -44,6 +41,8 @@ export function SalesByProductChart({
   onChartTypeChange,
   loading,
 }: SalesByProductChartProps) {
+  const { primary } = useBrandColors();
+  const palette = useBrandPalette(data.length);
   const isHorizontal = data.length > 6;
   const barHeight = isHorizontal ? Math.max(280, data.length * 36) : 260;
 
@@ -57,7 +56,7 @@ export function SalesByProductChart({
             className={[
               "rounded-lg px-2 py-1 text-xs font-medium transition-colors",
               chartType === "bar"
-                ? "bg-indigo-600 text-white"
+                ? "bg-brand-primary text-white"
                 : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
             ].join(" ")}
           >
@@ -68,7 +67,7 @@ export function SalesByProductChart({
             className={[
               "rounded-lg px-2 py-1 text-xs font-medium transition-colors",
               chartType === "pie"
-                ? "bg-indigo-600 text-white"
+                ? "bg-brand-primary text-white"
                 : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
             ].join(" ")}
           >
@@ -114,7 +113,7 @@ export function SalesByProductChart({
               labelLine={false}
             >
               {data.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <Cell key={i} fill={palette[i] ?? primary} />
               ))}
             </Pie>
             <Tooltip
@@ -170,7 +169,7 @@ export function SalesByProductChart({
                 border: "1px solid #e5e7eb",
               }}
             />
-            <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="value" fill={primary} radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
       ) : (
@@ -203,7 +202,7 @@ export function SalesByProductChart({
                 border: "1px solid #e5e7eb",
               }}
             />
-            <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="value" fill={primary} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}
