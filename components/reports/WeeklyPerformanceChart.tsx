@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { Metric, PeakBasis, ChartPoint } from "@/lib/actions/reports";
 import { getWeeklyPerformance } from "@/lib/actions/reports";
+import { useBrandColors } from "@/lib/use-brand-colors";
 
 interface WeeklyPerformanceChartProps {
   metric: Metric;
@@ -43,6 +44,7 @@ export function WeeklyPerformanceChart({
   metric,
   peakBasis,
 }: WeeklyPerformanceChartProps) {
+  const { primary } = useBrandColors();
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
   const [data, setData] = useState<ChartPoint[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -148,9 +150,9 @@ export function WeeklyPerformanceChart({
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#6366f1"
+              stroke={primary}
               strokeWidth={2}
-              dot={{ r: 4, fill: "#6366f1" }}
+              dot={{ r: 4, fill: primary }}
               activeDot={{ r: 6 }}
             />
           </LineChart>

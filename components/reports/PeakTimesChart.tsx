@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { Metric, PeakBasis, ChartPoint } from "@/lib/actions/reports";
+import { useBrandColors } from "@/lib/use-brand-colors";
 
 interface PeakTimesChartProps {
   data: ChartPoint[];
@@ -31,6 +32,7 @@ export function PeakTimesChart({
   onPeakBasisChange,
   loading,
 }: PeakTimesChartProps) {
+  const { accent } = useBrandColors();
   return (
     <div className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-2">
@@ -41,7 +43,7 @@ export function PeakTimesChart({
             className={[
               "rounded-lg px-2 py-1 text-xs font-medium transition-colors",
               peakBasis === "created_at"
-                ? "bg-indigo-600 text-white"
+                ? "bg-brand-primary text-white"
                 : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
             ].join(" ")}
           >
@@ -52,7 +54,7 @@ export function PeakTimesChart({
             className={[
               "rounded-lg px-2 py-1 text-xs font-medium transition-colors",
               peakBasis === "completed_at"
-                ? "bg-indigo-600 text-white"
+                ? "bg-brand-primary text-white"
                 : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
             ].join(" ")}
           >
@@ -93,7 +95,7 @@ export function PeakTimesChart({
                 border: "1px solid #e5e7eb",
               }}
             />
-            <Bar dataKey="value" fill="#818cf8" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="value" fill={accent} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
         </div>
